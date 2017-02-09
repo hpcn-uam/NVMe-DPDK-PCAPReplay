@@ -1,10 +1,10 @@
 [In Development] NVMe-DPDK-Replay 
 =================
 
-This application allows to reproduce HUGE PCAP files at line rate for 10, 40 and 100 Gbps Links
+This application allows to reproduce HUGE PCAP files at line rate for 10, 40 and 100 Gbps Links.
 
 Clonning
-=================
+-----------------
 To clone this project execute:
 
 ````
@@ -19,8 +19,18 @@ git pull
 git submodule update --init --recursive
 ````
 
-DPDK-Compilation
-=================
+Dependencies-Compilation
+----------------
+
+### Automatic Compilation
+
+Just execute:
+
+`./buildDeps.sh`
+
+### Manual Compilation
+
+#### DPDK-Compilation
 The latest tested DPDK-repository with this application is included in the `dpdk` folder.
 Howerver, any other compatible-version could be used by exporting `RTE_SDK` variable.
 
@@ -32,17 +42,23 @@ cd dpdk
 cd ..
 ````
 
-SPDK-Compilation
-=================
-TODO
+#### SPDK-Compilation
+Execute the following commands:
+
+````
+cd spdk
+make DPDK_DIR=${RTE_SDK}/${RTE_TARGET} -j
+sudo scripts/setup.sh
+cd ..
+````
 
 APP-Compilation
-=================
+-----------------
 The application is compiled automatically when executing one of the provided scripts.
 If you prefere to compile it manually, in the `src` folder there is a `Makefile` to do it.
 
 Execution
-=================
+-----------------
 In `script` folder, there are some example scripts:
 
 - `scripts/listFiles.sh` List the PCAP-files loaded in NVME raid

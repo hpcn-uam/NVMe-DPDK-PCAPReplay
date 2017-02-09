@@ -1,0 +1,5 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "clang.cflags":   ["-Wall", "-Wextra", "-Werror", "-std=gnu11", "-I", "${workspaceRoot}/hptimelib/include", "-I", "${workspaceRoot}/dpdk/x86_64-native-linuxapp-gcc/include/"],
+    "clang.cxxflags": ["-Wall", "-Wextra", "-Werror", "-std=gnu++11", "-I", "${workspaceRoot}/hptimelib/include", "-I", "${workspaceRoot}/dpdk/x86_64-native-linuxapp-gcc/include/"]
+}

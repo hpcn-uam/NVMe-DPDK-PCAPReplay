@@ -55,7 +55,7 @@ cd ..
 APP-Compilation
 -----------------
 The application is compiled automatically when executing one of the provided scripts.
-If you prefere to compile it manually, in the `src` folder there is a `Makefile` to do it.
+If you prefere to compile it manually, in the current folder there is a `Makefile` to do it.
 
 Execution
 -----------------

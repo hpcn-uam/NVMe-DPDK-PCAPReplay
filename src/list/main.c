@@ -60,6 +60,8 @@ struct ns_entry {
 static struct ctrlr_entry *g_controllers = NULL;
 static struct ns_entry *g_namespaces     = NULL;
 
+nvmeRaid myRaid = {.numdisks=0,.totalBlocks=0};
+
 static void register_ns (struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns) {
 	struct ns_entry *entry;
 	const struct spdk_nvme_ctrlr_data *cdata;
@@ -96,6 +98,8 @@ static void register_ns (struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 	printf ("  Namespace ID: %d size: %juGB\n",
 	        spdk_nvme_ns_get_id (ns),
 	        spdk_nvme_ns_get_size (ns) / 1000000000);
+
+	myRaid.totalBlocks+=spdk_nvme_ns_get_num_sectors(ns);
 }
 
 struct hello_world_sequence {
@@ -284,6 +288,7 @@ static void attach_cb (void *cb_ctx,
 	for (nsid = 1; nsid <= num_ns; nsid++) {
 		register_ns (ctrlr, spdk_nvme_ctrlr_get_ns (ctrlr, nsid));
 	}
+	myRaid.numdisks++;
 }
 
 static void cleanup (void) {
@@ -347,7 +352,6 @@ int main (int argc, char **argv) {
 
 	printf ("Initialization complete.\n");
 
-	nvmeRaid myRaid;
 	createRaid (&myRaid);
 	// hello_world();
 	cleanup ();

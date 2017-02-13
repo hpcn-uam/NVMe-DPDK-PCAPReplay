@@ -37,6 +37,6 @@ include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 
 APP = main ../common
 
-CFLAGS += -I $(INCLUDE_DIR)
+CFLAGS += -I $(INCLUDE_DIR) -g
 
 include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk

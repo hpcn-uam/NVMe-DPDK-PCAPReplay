@@ -53,3 +53,8 @@
 *.~
 build
 *pcap
+
+# SPDK-Executables
+main
+common
+list

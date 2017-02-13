@@ -322,7 +322,7 @@ int main (int argc, char **argv) {
 	 * So first we must initialize DPDK.  "-c 0x1" indicates to only use
 	 *  core 0.
 	 */
-	strcpy (ealargs[0], argv[0]);
+	//strcpy (ealargs[0], argv[0]);
 	rc = rte_eal_init (sizeof (ealargs) / sizeof (ealargs[0]), ealargs);
 	if (rc < 0) {
 		fprintf (stderr, "could not initialize dpdk\n");

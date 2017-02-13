@@ -17,7 +17,7 @@ void initMeta (metaSector *m, uint8_t diskId, uint8_t totalDisks) {
 	m->version    = CURVERSION;
 	m->diskId     = diskId;
 	m->totalDisks = totalDisks;
-	m->reserved   = 0;
+	m->totalFiles = 0;
 
 	int i;
 	for (i = 0; i < MAXFILES; i++) {
@@ -145,10 +145,13 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 				memcpy (name, raid->disk[i].content[j].name, NAMELENGTH);
 				raid->disk[i].content[j].startBlock = rightFreeBlock (raid);
 				raid->disk[i].content[j].endBlock   = raid->disk[i].content[j].startBlock + blsize;
+
+				// STORE THIS DATA
+				return &raid->disk[i].content[j];
 			}
-			// STORE THIS DATA
 		}
 	}
+	return NULL;
 }
 
 uint8_t delFile (nvmeRaid *raid, char *name) {

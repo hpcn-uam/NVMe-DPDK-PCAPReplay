@@ -1,5 +1,7 @@
 #/bin/bash
 
+git submodule update --init
+
 ##### TODO: ERROR-CONTROL
 
 export RTE_SDK=$(pwd)/dpdk
@@ -16,11 +18,11 @@ sudo /sbin/modprobe uio
 sudo /sbin/insmod $RTE_SDK/$RTE_TARGET/kmod/igb_uio.ko
 
 #BIND bind_devices
-${RTE_SDK}/tools/dpdk-devbind.py --status
+${RTE_SDK}/usertools/dpdk-devbind.py --status
 echo ""
 echo -n "Enter PCI address of device to bind to IGB UIO driver: "
 read PCI_PATH
-sudo ${RTE_SDK}/tools/dpdk-devbind.py -b igb_uio $PCI_PATH && echo "OK"
+sudo ${RTE_SDK}/usertools/dpdk-devbind.py -b igb_uio $PCI_PATH && echo "OK"
 
 
 #MOUNT HUGEPAGES

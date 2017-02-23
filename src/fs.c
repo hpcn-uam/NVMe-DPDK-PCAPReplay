@@ -4,6 +4,7 @@ void checkMetaConfig (void) {
 	if (sizeof (metaSector) != METASECTORLENGTH) {
 		fprintf (
 		    stderr, "Invalid meta-data-size (%lu != %lu)\n", sizeof (metaSector), METASECTORLENGTH);
+		fprintf (stderr, "Each file data has %lu bytes\n", sizeof (metaFile));
 		exit (-1);
 	}
 }

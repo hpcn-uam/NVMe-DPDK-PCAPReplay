@@ -4,6 +4,7 @@
 #include "spdk/nvme.h"
 #include "spdk/env.h"
 
+// Async functions
 static void sio_read_complete (void* arg, const struct spdk_nvme_cpl* completion) {
 	UNUSED (completion);
 	int* iarg = (int*)arg;
@@ -17,6 +18,7 @@ static void sio_write_complete (void* arg, const struct spdk_nvme_cpl* completio
 	*iarg     = 1;
 }
 
+// Works for pinned memory
 int sio_read (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
 	int rc;
 	int completed = 0;
@@ -50,4 +52,21 @@ int sio_write (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
 	}
 
 	return rc;
+}
+
+// Copy into pinned memory
+int sio_read_pinit (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
+	int sectorSize = spdk_nvme_ns_get_sector_size (dsk->ns);
+	void* mem      = spdk_malloc (lba_count * sectorSize, sectorSize, NULL);
+	int ret = sio_read (dsk, mem, lba, lba_count);
+	memcpy (payload, mem, lba_count * sectorSize);
+	return ret;
+}
+
+int sio_write_pinit (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
+	int sectorSize = spdk_nvme_ns_get_sector_size (dsk->ns);
+	void* mem = spdk_malloc (lba_count * sectorSize, sectorSize, NULL);
+	memcpy (mem, payload, lba_count * sectorSize);
+	int ret = sio_write (dsk, mem, lba, lba_count);
+	return ret;
 }

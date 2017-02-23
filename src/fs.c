@@ -43,7 +43,7 @@ void createRaid (nvmeRaid *raid) {
 	int8_t isInit[MAXDISKS] = {0};
 
 	for (i = 0; i < raid->numdisks; i++) {
-		sio_read (&raid->disk[i], &raid->disk[i].msector, 0, 1);
+		sio_read_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
 		if (checkMeta (&raid->disk[i].msector)) {  // initialiced
 			isInit[i] = 1;
 			cnt++;
@@ -55,7 +55,7 @@ void createRaid (nvmeRaid *raid) {
 	if (cnt == 0) {  // all must be initialiced
 		for (i = 0; i < raid->numdisks; i++) {
 			initMeta (&raid->disk[i].msector, i, raid->numdisks);
-			sio_write (&raid->disk[i], &raid->disk[i].msector, 0, 1);
+			sio_write_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
 			printf("Overwritting sector 0 of disk %d\n",i);
 		}
 	} else if (cnt < raid->numdisks) {

@@ -35,7 +35,7 @@ SPDK_ROOT_DIR := $(abspath $(CURDIR)/../../spdk)
 INCLUDE_DIR := $(abspath $(CURDIR)/../../include)
 include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 
-APP = main ../common
+APP = list ../common ../fs ../main
 
 CFLAGS += -I $(INCLUDE_DIR) -g
 

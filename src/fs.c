@@ -33,6 +33,9 @@ void initMeta (metaSector *m, uint8_t diskId, uint8_t totalDisks) {
 static int cmpMetaSector (const void *p1, const void *p2) {
 	return ((const metaSector *)p1)->diskId > ((const metaSector *)p2)->diskId;
 }
+static int cmpIDisk (const void *p1, const void *p2) {
+	return cmpMetaSector (&((const idisk *)p1)->msector, &((const idisk *)p2)->msector);
+}
 
 // For search
 static int cmpFile (const void *p1, const void *p2) {
@@ -69,7 +72,7 @@ void createRaid (nvmeRaid *raid) {
 	}
 
 	// order
-	qsort (raid->disk, raid->numdisks, sizeof (metaSector), cmpMetaSector);
+	qsort (raid->disk, raid->numdisks, sizeof (idisk), cmpIDisk);
 
 	// check integrity
 	for (i = 0; i < raid->numdisks; i++) {

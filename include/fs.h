@@ -11,8 +11,8 @@
 
 #define MAGICNUMBER 0xCACA0FE0
 #define METASECTORLENGTH 512lu
-#define NAMELENGTH 40
-#define MAXFILES 24
+#define NAMELENGTH 26
+#define MAXFILES 12
 
 #define MAXDISKS 8
 

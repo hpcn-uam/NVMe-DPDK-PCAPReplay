@@ -57,7 +57,11 @@ int sio_write (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
 // Copy into pinned memory
 int sio_read_pinit (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
 	int sectorSize = spdk_nvme_ns_get_sector_size (dsk->ns);
-	void* mem      = spdk_malloc (lba_count * sectorSize, sectorSize, NULL);
+	void* mem = spdk_malloc (lba_count * sectorSize, sectorSize, NULL);
+	if (mem == NULL) {
+		printf ("Error pinning memory for RD transaction\n");
+		return -1;
+	}
 	int ret = sio_read (dsk, mem, lba, lba_count);
 	memcpy (payload, mem, lba_count * sectorSize);
 	return ret;
@@ -66,6 +70,10 @@ int sio_read_pinit (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count)
 int sio_write_pinit (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count) {
 	int sectorSize = spdk_nvme_ns_get_sector_size (dsk->ns);
 	void* mem = spdk_malloc (lba_count * sectorSize, sectorSize, NULL);
+	if (mem == NULL) {
+		printf ("Error pinning memory for WR transaction\n");
+		return -1;
+	}
 	memcpy (mem, payload, lba_count * sectorSize);
 	int ret = sio_write (dsk, mem, lba, lba_count);
 	return ret;

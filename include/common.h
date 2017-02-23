@@ -1,9 +1,12 @@
 #ifndef __common_h__
 #define __common_h__
 
-#include <fs.h>
+#define UNUSED(X) ((void) (X))
 
-void app_config (void);
+#include <fs.h>
+#include <simpleio.h>
+
+void app_config (int argc, char **argv);
 void app_init (void);
 void app_run (void);
 

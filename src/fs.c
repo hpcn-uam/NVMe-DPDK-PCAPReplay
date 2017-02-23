@@ -43,7 +43,8 @@ void createRaid (nvmeRaid *raid) {
 	int8_t isInit[MAXDISKS] = {0};
 
 	for (i = 0; i < raid->numdisks; i++) {
-		if (checkMeta (&raid->disk[i])) {  // initialiced
+		sio_read (&raid->disk[i], &raid->disk[i].msector, 0, 1);
+		if (checkMeta (&raid->disk[i].msector)) {  // initialiced
 			isInit[i] = 1;
 			cnt++;
 		} else {
@@ -53,8 +54,9 @@ void createRaid (nvmeRaid *raid) {
 
 	if (cnt == 0) {  // all must be initialiced
 		for (i = 0; i < raid->numdisks; i++) {
-			initMeta (&raid->disk[i], i, raid->numdisks);
-			// save meta
+			initMeta (&raid->disk[i].msector, i, raid->numdisks);
+			sio_write (&raid->disk[i], &raid->disk[i].msector, 0, 1);
+			printf("Overwritting sector 0 of disk %d\n",i);
 		}
 	} else if (cnt < raid->numdisks) {
 		puts (
@@ -69,7 +71,8 @@ void createRaid (nvmeRaid *raid) {
 
 	// check integrity
 	for (i = 0; i < raid->numdisks; i++) {
-		if (raid->disk[i].diskId != i && raid->disk[i].totalDisks != raid->numdisks) {
+		if (raid->disk[i].msector.diskId != i &&
+		    raid->disk[i].msector.totalDisks != raid->numdisks) {
 			puts ("NVMe raid integrity error. Can't continue");
 			exit (-1);
 		}
@@ -81,7 +84,8 @@ uint64_t blocksLeft (nvmeRaid *raid) {
 	int i, j;
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
-			usedBlocks = raid->disk[i].content[j].endBlock - raid->disk[i].content[j].startBlock;
+			usedBlocks = raid->disk[i].msector.content[j].endBlock -
+			             raid->disk[i].msector.content[j].startBlock;
 		}
 	}
 	return raid->totalBlocks - usedBlocks;
@@ -96,8 +100,8 @@ uint64_t rightFreeBlock (nvmeRaid *raid) {
 	int i, j;
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
-			if (mostRight < raid->disk[i].content[j].endBlock)
-				mostRight = raid->disk[i].content[j].endBlock;
+			if (mostRight < raid->disk[i].msector.content[j].endBlock)
+				mostRight = raid->disk[i].msector.content[j].endBlock;
 		}
 	}
 	return mostRight;
@@ -108,7 +112,7 @@ metaFile *findFile (nvmeRaid *raid, char *name) {
 	size_t numfiles = MAXFILES;
 	metaFile *ret = NULL;
 	for (i = 0; i < raid->numdisks; i++) {
-		ret = lfind (name, &raid->disk[i].content, &numfiles, sizeof (metaFile), cmpFile);
+		ret = lfind (name, &raid->disk[i].msector.content, &numfiles, sizeof (metaFile), cmpFile);
 		if (ret)
 			break;
 	}
@@ -120,11 +124,11 @@ uint8_t findFileDisk (nvmeRaid *raid, char *name) {
 	size_t numfiles = MAXFILES;
 	metaFile *ret = NULL;
 	for (i = 0; i < raid->numdisks; i++) {
-		ret = lfind (name, &raid->disk[i].content, &numfiles, sizeof (metaFile), cmpFile);
+		ret = lfind (name, &raid->disk[i].msector.content, &numfiles, sizeof (metaFile), cmpFile);
 		if (ret)
 			break;
 	}
-	return raid->disk[i].diskId;
+	return raid->disk[i].msector.diskId;
 }
 
 metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
@@ -133,7 +137,7 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 	// TODO: set errno to the specific error
 	if (findFile (raid, name))
 		return NULL;
-	if (raid->disk[0].totalFiles == MAXFILES)
+	if (raid->disk[0].msector.totalFiles == MAXFILES)
 		return NULL;
 	// Check for space
 	if (rightFreeBlocks (raid) < blsize)
@@ -141,13 +145,14 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 	// find a place for it
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
-			if (raid->disk[i].content[j].name[0] == 0) {
-				memcpy (name, raid->disk[i].content[j].name, NAMELENGTH);
-				raid->disk[i].content[j].startBlock = rightFreeBlock (raid);
-				raid->disk[i].content[j].endBlock   = raid->disk[i].content[j].startBlock + blsize;
+			if (raid->disk[i].msector.content[j].name[0] == 0) {
+				memcpy (name, raid->disk[i].msector.content[j].name, NAMELENGTH);
+				raid->disk[i].msector.content[j].startBlock = rightFreeBlock (raid);
+				raid->disk[i].msector.content[j].endBlock =
+				    raid->disk[i].msector.content[j].startBlock + blsize;
 
 				// STORE THIS DATA
-				return &raid->disk[i].content[j];
+				return &raid->disk[i].msector.content[j];
 			}
 		}
 	}

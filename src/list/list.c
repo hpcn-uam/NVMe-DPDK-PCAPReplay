@@ -44,7 +44,7 @@
 
 #include <common.h>
 
-void app_config (void) {
+void app_config (int argc, char **argv) {
 	return;
 }
 void app_init (void) {

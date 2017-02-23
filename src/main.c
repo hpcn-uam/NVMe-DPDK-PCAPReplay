@@ -173,8 +173,8 @@ int main (int argc, char **argv) {
 	// hello_world();
 
 	app_config (argc, argv);
-	app_init ();
-	app_run ();
+	app_init (&myRaid);
+	app_run (&myRaid);
 
 	cleanup ();
 	return 0;

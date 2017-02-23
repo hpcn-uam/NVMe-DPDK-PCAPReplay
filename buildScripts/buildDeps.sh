@@ -1,7 +1,5 @@
 #/bin/bash
 
-git submodule update --init
-
 ##### TODO: ERROR-CONTROL
 
 export RTE_SDK=$(pwd)/dpdk

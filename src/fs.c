@@ -1,8 +1,9 @@
 #include <fs.h>
 
 void checkMetaConfig (void) {
-	if (sizeof (metaSector) > METASECTORLENGTH) {
-		fprintf (stderr, "Invalid meta-data-size\n");
+	if (sizeof (metaSector) != METASECTORLENGTH) {
+		fprintf (
+		    stderr, "Invalid meta-data-size (%lu VS %lu)\n", sizeof (metaSector), METASECTORLENGTH);
 		exit (-1);
 	}
 }
@@ -56,7 +57,7 @@ void createRaid (nvmeRaid *raid) {
 		for (i = 0; i < raid->numdisks; i++) {
 			initMeta (&raid->disk[i].msector, i, raid->numdisks);
 			sio_write_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
-			printf("Overwritting sector 0 of disk %d\n",i);
+			printf ("Overwritting sector 0 of disk %d\n", i);
 		}
 	} else if (cnt < raid->numdisks) {
 		puts (

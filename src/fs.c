@@ -45,15 +45,15 @@ static int cmpFile (const void *p1, const void *p2) {
 void createRaid (nvmeRaid *raid) {
 	int i, cnt = 0;
 
-	int8_t isInit[MAXDISKS] = {0};
+	//int8_t isInit[MAXDISKS] = {0};
 
 	for (i = 0; i < raid->numdisks; i++) {
 		sio_read_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
 		if (checkMeta (&raid->disk[i].msector)) {  // initialiced
-			isInit[i] = 1;
+			//isInit[i] = 1;
 			cnt++;
 		} else {
-			isInit[i] = 0;
+			//isInit[i] = 0;
 		}
 	}
 

@@ -16,13 +16,13 @@
 
 #define MAXDISKS 8
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	char name[NAMELENGTH];
 	uint64_t startBlock;
 	uint64_t endBlock;
 } metaFile;
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	uint32_t MAGIC;
 	uint8_t version;
 	uint8_t diskId;

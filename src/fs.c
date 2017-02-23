@@ -3,7 +3,7 @@
 void checkMetaConfig (void) {
 	if (sizeof (metaSector) != METASECTORLENGTH) {
 		fprintf (
-		    stderr, "Invalid meta-data-size (%lu VS %lu)\n", sizeof (metaSector), METASECTORLENGTH);
+		    stderr, "Invalid meta-data-size (%lu != %lu)\n", sizeof (metaSector), METASECTORLENGTH);
 		exit (-1);
 	}
 }

@@ -38,7 +38,7 @@ include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 DEPCS =  $(wildcard ../*.c)
 DEPOBJS =  $(DEPCS:.c=)
 
-APP = list $(DEPOBJS)
+APP = cp $(DEPOBJS)
 
 CFLAGS += -I $(INCLUDE_DIR) -g
 

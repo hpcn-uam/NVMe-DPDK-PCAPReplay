@@ -59,9 +59,9 @@ If you prefere to compile it manually, in the current folder there is a `Makefil
 
 Execution
 -----------------
-In `script` folder, there are some example scripts:
+In `bin` folder, there are links to the compiled files:
 
-- `scripts/listFiles.sh` List the PCAP-files loaded in NVME raid
-- `scripts/RemoveFile.sh` Remove a file from the NVME raid
-- `scripts/AddFile.sh` Adds a file from the NVME raid
-- `scripts/ReplayFile.sh` Replays a file from the NVME raid
+- `bin/ls` List the PCAP-files loaded in NVME raid
+- `bin/rm` Remove a file from the NVME raid
+- `bin/cp` Adds a file from the NVME raid
+- `bin/replay` Replays a file from the NVME raid

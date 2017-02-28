@@ -46,20 +46,13 @@ void app_config (int argc, char **argv) {
 		int option_index = 0;
 
 		c = getopt_long (argc, argv, ":h", long_options, &option_index);
-		puts ("exe");
 		/* Detect the end of the options. */
 		if (c == -1)
 			break;
 
 		switch (c) {
 			case 'h':
-				app_usage ();
-				// exit (1);
-				break;
 			case '?':
-				puts ("?");
-				app_usage ();
-				exit (1);
 			default:
 				puts ("default");
 				app_usage ();

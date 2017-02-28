@@ -195,8 +195,8 @@ void app_run (nvmeRaid *raid) {
 
 		} else {  // file does not exists
 			raid_file = addFile (raid, cto_raid, origin_size_blks);
-			if (raid_file) {
-				printf("Can not allocate a new file in the NVMe-raid\n");
+			if (!raid_file) {
+				printf ("Can not allocate a new file in the NVMe-raid\n");
 			}
 		}
 

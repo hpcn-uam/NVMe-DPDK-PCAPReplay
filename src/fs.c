@@ -153,7 +153,7 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 	// TODO: set errno to the specific error
 	if (findFile (raid, name))
 		return NULL;
-	if (raid->disk[0].msector.totalFiles == MAXFILES)
+	if (raid->disk[0].msector.totalFiles == MAXFILES * raid->numdisks)
 		return NULL;
 	// Check for space
 	if (rightFreeBlocks (raid) < blsize)
@@ -166,8 +166,9 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 				raid->disk[i].msector.content[j].startBlock = rightFreeBlock (raid);
 				raid->disk[i].msector.content[j].endBlock =
 				    raid->disk[i].msector.content[j].startBlock + blsize;
+				raid->disk[0].msector.totalFiles++;  // increase the number of files
 
-				// STORE THIS DATA
+				updateRaid (raid);
 				return &raid->disk[i].msector.content[j];
 			}
 		}
@@ -181,7 +182,9 @@ uint8_t delFile (nvmeRaid *raid, char *name) {
 		f->name[0]    = 0;
 		f->startBlock = 0;
 		f->endBlock   = 0;
-		// STORE THIS DATA
+		raid->disk[0].msector.totalFiles--;
+
+		updateRaid (raid);
 		return 1;
 	} else {
 		return 0;

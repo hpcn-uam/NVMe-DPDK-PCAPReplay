@@ -115,7 +115,7 @@ uint64_t rightFreeBlocks (nvmeRaid *raid) {
 }
 
 uint64_t rightFreeBlock (nvmeRaid *raid) {
-	uint64_t mostRight = 0;
+	uint64_t mostRight = raid->numdisks;  // keep the metasectors
 	int i, j;
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {

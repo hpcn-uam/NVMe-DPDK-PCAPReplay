@@ -86,6 +86,9 @@ void createRaid (nvmeRaid *raid) {
 			exit (-1);
 		}
 	}
+
+	// fill other raid data
+	raid->numFiles = raid->disk[0].msector.totalFiles;
 }
 
 void updateRaid (nvmeRaid *raid) {
@@ -167,6 +170,7 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 				raid->disk[i].msector.content[j].endBlock =
 				    raid->disk[i].msector.content[j].startBlock + blsize;
 				raid->disk[0].msector.totalFiles++;  // increase the number of files
+				raid->numFiles++;
 
 				updateRaid (raid);
 				return &raid->disk[i].msector.content[j];
@@ -183,6 +187,7 @@ uint8_t delFile (nvmeRaid *raid, char *name) {
 		f->startBlock = 0;
 		f->endBlock   = 0;
 		raid->disk[0].msector.totalFiles--;
+		raid->numFiles--;
 
 		updateRaid (raid);
 		return 1;

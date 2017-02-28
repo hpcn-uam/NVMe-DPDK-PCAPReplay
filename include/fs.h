@@ -55,10 +55,10 @@ void updateRaid (nvmeRaid* raid);
 uint64_t blocksLeft (nvmeRaid* raid);
 uint64_t rightFreeBlocks (nvmeRaid* raid);  // the rightest contiguous free blocks (the number of)
 uint64_t rightFreeBlock (nvmeRaid* raid);   // the rightest contiguous free block (which is)
-metaFile* findFile (nvmeRaid* raid, char* name);
-uint8_t findFileDisk (nvmeRaid* raid, char* name);
-metaFile* addFile (nvmeRaid* raid, char* name, uint64_t blsize);
-uint8_t delFile (nvmeRaid* raid, char* name);
+metaFile* findFile (nvmeRaid* raid, const char* const name);
+uint8_t findFileDisk (nvmeRaid* raid, const char* const name);
+metaFile* addFile (nvmeRaid* raid, const char* const name, uint64_t blsize);
+uint8_t delFile (nvmeRaid* raid, const char* const name);
 
 #include <simpleio.h>
 

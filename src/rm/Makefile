@@ -31,16 +31,15 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-SPDK_ROOT_DIR := $(abspath $(CURDIR)/../spdk)
-INCLUDE_DIR := $(abspath $(CURDIR)/../include)
+SPDK_ROOT_DIR := $(abspath $(CURDIR)/../../spdk)
+INCLUDE_DIR := $(abspath $(CURDIR)/../../include)
 include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 
-DIRS-y += ls cp rm
-CFLAGS += -I $(INCLUDE_DIR)
+DEPCS =  $(wildcard ../*.c)
+DEPOBJS =  $(DEPCS:.c=)
 
-.PHONY: all clean $(DIRS-y)
+APP = rm $(DEPOBJS)
 
-all: $(DIRS-y)
-clean: $(DIRS-y)
+CFLAGS += -I $(INCLUDE_DIR) -g
 
-include $(SPDK_ROOT_DIR)/mk/spdk.subdirs.mk
+include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk

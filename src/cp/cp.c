@@ -16,7 +16,7 @@ static void app_usage (void) {
 	printf (
 	    "This is a NVME-DPDK-PCAPRelplay %s tool\n"
 	    "\n"
-	    "Available options are:"
+	    "Available options are:\n"
 	    "--help : To show this help info\n"
 	    "--nscap : Interpretate the file as a NVME-SPDK-PCAP / PCAP.\n"
 	    "--from-sys  [filename]: Specifies the origin file from the system\n"

@@ -126,7 +126,7 @@ uint64_t rightFreeBlock (nvmeRaid *raid) {
 	return mostRight;
 }
 
-metaFile *findFile (nvmeRaid *raid, char *name) {
+metaFile *findFile (nvmeRaid *raid, const char *const name) {
 	int i;
 	size_t numfiles = MAXFILES;
 	metaFile *ret = NULL;
@@ -138,7 +138,7 @@ metaFile *findFile (nvmeRaid *raid, char *name) {
 	return ret;
 }
 
-uint8_t findFileDisk (nvmeRaid *raid, char *name) {
+uint8_t findFileDisk (nvmeRaid *raid, const char *const name) {
 	int i;
 	size_t numfiles = MAXFILES;
 	metaFile *ret = NULL;
@@ -150,7 +150,7 @@ uint8_t findFileDisk (nvmeRaid *raid, char *name) {
 	return raid->disk[i].msector.diskId;
 }
 
-metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
+metaFile *addFile (nvmeRaid *raid, const char *const name, uint64_t blsize) {
 	int i, j;
 
 	// TODO: set errno to the specific error
@@ -180,7 +180,7 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 	return NULL;
 }
 
-uint8_t delFile (nvmeRaid *raid, char *name) {
+uint8_t delFile (nvmeRaid *raid, const char *const name) {
 	metaFile *f = findFile (raid, name);
 	if (f) {
 		f->name[0]    = 0;

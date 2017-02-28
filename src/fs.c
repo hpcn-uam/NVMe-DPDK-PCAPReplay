@@ -161,6 +161,9 @@ metaFile *addFile (nvmeRaid *raid, const char *const name, uint64_t blsize) {
 	// Check for space
 	if (rightFreeBlocks (raid) < blsize)
 		return NULL;
+	// check filename
+	if (name[0] == 0)
+		return NULL;
 	// find a place for it
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
@@ -181,6 +184,9 @@ metaFile *addFile (nvmeRaid *raid, const char *const name, uint64_t blsize) {
 }
 
 uint8_t delFile (nvmeRaid *raid, const char *const name) {
+	// check filename
+	if (name[0] == 0)
+		return 0;
 	metaFile *f = findFile (raid, name);
 	if (f) {
 		f->name[0]    = 0;

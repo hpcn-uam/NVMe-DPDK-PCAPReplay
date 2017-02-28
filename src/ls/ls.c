@@ -41,6 +41,10 @@ void app_run (nvmeRaid *raid) {
 			}
 		}
 		printf ("\n Showing all %d files.\n", raid->numFiles);
+		printf ("\n %lu Block reserved/used from %lu total (%lf %%)\n",
+		        raid->totalBlocks - rightFreeBlocks (raid),
+		        raid->totalBlocks,
+		        raid->totalBlocks / (double)rightFreeBlocks (raid));
 	}
 	return;
 }

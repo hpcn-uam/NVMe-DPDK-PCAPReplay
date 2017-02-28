@@ -84,7 +84,7 @@ void app_run (nvmeRaid *raid) {
 	size_t i;
 
 	for (i = 0; i < n_files; i++) {
-		printf ("Trying to remove file \"%s\"...", file[i]);
+		printf ("Trying to remove file \"%26s\"...", file[i]);
 		if (delFile (raid, file[i])) {
 			printf ("OK\n");
 		} else {

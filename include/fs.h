@@ -10,7 +10,8 @@
 #define CURVERSION 1
 
 #define MAGICNUMBER 0xCACA0FE0
-#define METASECTORLENGTH 512lu
+#define SECTORLENGTH 512lu
+#define METASECTORLENGTH SECTORLENGTH
 #define SUPERSECTORLENGTH (128lu * 1024lu)  // 128K that is the best for performance
 #define SUPERSECTORNUM (SUPERSECTORLENGTH / METASECTORLENGTH)
 #define NAMELENGTH 26
@@ -63,5 +64,10 @@ metaFile* addFile (nvmeRaid* raid, const char* const name, uint64_t blsize);
 uint8_t delFile (nvmeRaid* raid, const char* const name);
 
 #include <simpleio.h>
+
+// utility functions
+uint64_t super_getid (nvmeRaid* raid, uint64_t lba);
+uint64_t super_getdisk (nvmeRaid* raid, uint64_t lba);
+uint64_t super_getdisklba (nvmeRaid* raid, uint64_t lba);
 
 #endif

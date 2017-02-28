@@ -1,3 +1,6 @@
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -199,6 +202,14 @@ void app_run (nvmeRaid *raid) {
 				printf ("Can not allocate a new file in the NVMe-raid\n");
 			}
 		}
+
+		int fd    = fileno (f);
+		void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
+
+		sio_rwrite_pinit(raid,map, raid_file->startBlock, origin_size_blks);
+
+		munmap (map, origin_size);
+		fclose (f);
 
 	} else if (ffrom_raid && fto_sys) {
 	}

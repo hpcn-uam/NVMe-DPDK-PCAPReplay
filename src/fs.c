@@ -1,4 +1,5 @@
 #include <fs.h>
+#include <common.h>
 
 void checkMetaConfig (void) {
 	if (sizeof (metaSector) != METASECTORLENGTH) {
@@ -200,4 +201,17 @@ uint8_t delFile (nvmeRaid *raid, const char *const name) {
 	} else {
 		return 0;
 	}
+}
+
+// utility functions
+uint64_t super_getid (nvmeRaid *raid, uint64_t lba) {
+	UNUSED (raid);
+	return (lba / SUPERSECTORNUM);
+}
+uint64_t super_getdisk (nvmeRaid *raid, uint64_t lba) {
+	return super_getid (raid, lba) % raid->numdisks;
+}
+uint64_t super_getdisklba (nvmeRaid *raid, uint64_t lba) {
+	return lba - ((super_getid (raid, lba) - (super_getid (raid, lba) / raid->numdisks)) *
+	              SUPERSECTORNUM);
 }

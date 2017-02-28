@@ -4,6 +4,11 @@
 #include "spdk/nvme.h"
 #include "spdk/env.h"
 
+// Simpliest commands
+int sio_sectorSize (idisk* dsk) {
+	return spdk_nvme_ns_get_sector_size (dsk->ns);
+}
+
 // Async functions
 static void sio_read_complete (void* arg, const struct spdk_nvme_cpl* completion) {
 	UNUSED (completion);

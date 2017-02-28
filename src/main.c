@@ -134,6 +134,9 @@ static char *ealargs[] = {
 int main (int argc, char **argv) {
 	int rc;
 
+	// First of all, try to configure the app
+	app_config (argc, argv);
+
 	/*
 	 * By default, the SPDK NVMe driver uses DPDK for huge page-based
 	 *  memory management and NVMe request buffer pools.  Huge pages can
@@ -172,7 +175,6 @@ int main (int argc, char **argv) {
 	createRaid (&myRaid);
 	// hello_world();
 
-	app_config (argc, argv);
 	app_init (&myRaid);
 	app_run (&myRaid);
 

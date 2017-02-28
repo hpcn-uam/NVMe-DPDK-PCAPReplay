@@ -45,15 +45,19 @@ static int cmpFile (const void *p1, const void *p2) {
 void createRaid (nvmeRaid *raid) {
 	int i, cnt = 0;
 
-	//int8_t isInit[MAXDISKS] = {0};
+	// int8_t isInit[MAXDISKS] = {0};
 
 	for (i = 0; i < raid->numdisks; i++) {
+		if (sio_sectorSize (&raid->disk[i]) != METASECTORLENGTH) {
+			printf ("Disk %d have an invalid sector size (!=%lu)", i, METASECTORLENGTH);
+		}
+
 		sio_read_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
 		if (checkMeta (&raid->disk[i].msector)) {  // initialiced
-			//isInit[i] = 1;
+			// isInit[i] = 1;
 			cnt++;
 		} else {
-			//isInit[i] = 0;
+			// isInit[i] = 0;
 		}
 	}
 
@@ -81,6 +85,13 @@ void createRaid (nvmeRaid *raid) {
 			puts ("NVMe raid integrity error. Can't continue");
 			exit (-1);
 		}
+	}
+}
+
+void updateRaid (nvmeRaid *raid) {
+	int i;
+	for (i = 0; i < raid->numdisks; i++) {
+		sio_write_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
 	}
 }
 

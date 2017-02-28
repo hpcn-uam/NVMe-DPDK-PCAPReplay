@@ -50,6 +50,8 @@ int checkMeta (metaSector* m);
 void initMeta (metaSector* m, uint8_t diskId, uint8_t totalDisks);
 
 void createRaid (nvmeRaid* raid);
+void updateRaid (nvmeRaid* raid);
+
 uint64_t blocksLeft (nvmeRaid* raid);
 uint64_t rightFreeBlocks (nvmeRaid* raid);  // the rightest contiguous free blocks (the number of)
 uint64_t rightFreeBlock (nvmeRaid* raid);   // the rightest contiguous free block (which is)

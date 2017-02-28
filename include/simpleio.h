@@ -3,6 +3,9 @@
 
 #include <fs.h>
 
+// Simpliest commands
+int sio_sectorSize (idisk* dsk);
+
 // Works for pinned memory
 int sio_read (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count);
 int sio_write (idisk* dsk, void* payload, uint64_t lba, uint32_t lba_count);

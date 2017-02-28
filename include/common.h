@@ -6,6 +6,8 @@
 #include <fs.h>
 #include <simpleio.h>
 
+static const char pcapExt[] = ".nscap";
+
 void app_config (int argc, char **argv);
 void app_init (nvmeRaid *raid);
 void app_run (nvmeRaid *raid);

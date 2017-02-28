@@ -40,6 +40,7 @@ void app_run (nvmeRaid *raid) {
 				}
 			}
 		}
+		printf ("\n Showing all %d files.\n", raid->numFiles);
 	}
 	return;
 }

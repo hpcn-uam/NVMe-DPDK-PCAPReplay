@@ -165,7 +165,7 @@ metaFile *addFile (nvmeRaid *raid, char *name, uint64_t blsize) {
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
 			if (raid->disk[i].msector.content[j].name[0] == 0) {
-				memcpy (name, raid->disk[i].msector.content[j].name, NAMELENGTH);
+				memcpy (raid->disk[i].msector.content[j].name, name, NAMELENGTH);
 				raid->disk[i].msector.content[j].startBlock = rightFreeBlock (raid);
 				raid->disk[i].msector.content[j].endBlock =
 				    raid->disk[i].msector.content[j].startBlock + blsize;

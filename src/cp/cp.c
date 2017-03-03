@@ -206,7 +206,18 @@ void app_run (nvmeRaid *raid) {
 		int fd    = fileno (f);
 		void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-		sio_rwrite_pinit(raid,map, raid_file->startBlock, origin_size_blks);
+		if (origin_size % METASECTORLENGTH != 0) {
+			origin_size_blks--;
+			void *padding = spdk_zmalloc (SECTORLENGTH, SECTORLENGTH, NULL);
+			memcpy (padding,
+			        map + origin_size_blks * SECTORLENGTH,
+			        origin_size - origin_size_blks * SECTORLENGTH);
+			sio_rwrite (raid, padding, raid_file->startBlock + origin_size_blks, 1);
+		}
+
+		if (origin_size_blks) {  // only call if there are blocks to write.
+			sio_rwrite_pinit (raid, map, raid_file->startBlock, origin_size_blks);
+		}
 
 		munmap (map, origin_size);
 		fclose (f);

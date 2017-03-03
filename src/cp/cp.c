@@ -17,7 +17,7 @@
 
 static void app_usage (void) {
 	printf (
-	    "This is a NVME-DPDK-PCAPRelplay %s tool\n"
+	    "This is a NVME-DPDK-PCAPReplay %s tool\n"
 	    "\n"
 	    "Available options are:\n"
 	    "--help : To show this help info\n"

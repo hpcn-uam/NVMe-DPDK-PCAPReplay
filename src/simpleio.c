@@ -116,14 +116,14 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 			return rc;
 		}
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
-		rc = sio_rread (raid, payload, lba, lba_count % (SUPERSECTORNUM - lba));
+		rc = sio_rread (raid, payload, lba, (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
 			return rc;
 		}
 		rc = sio_rread (raid,
-		                payload + (lba_count % (SUPERSECTORNUM - lba)) * SECTORLENGTH,
-		                lba + lba_count % (SUPERSECTORNUM - lba),
-		                lba_count - lba_count % (SUPERSECTORNUM - lba));
+		                payload + ((SUPERSECTORNUM - lba % SUPERSECTORNUM)) * SECTORLENGTH,
+		                lba + (SUPERSECTORNUM - lba % SUPERSECTORNUM),
+		                lba_count - (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
 			return rc;
 		}
@@ -188,14 +188,14 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 			return rc;
 		}
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
-		rc = sio_rwrite (raid, payload, lba, lba_count % (SUPERSECTORNUM - lba));
+		rc = sio_rwrite (raid, payload, lba, (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
 			return rc;
 		}
 		rc = sio_rwrite (raid,
-		                 payload + (lba_count % (SUPERSECTORNUM - lba)) * SECTORLENGTH,
-		                 lba + lba_count % (SUPERSECTORNUM - lba),
-		                 lba_count - lba_count % (SUPERSECTORNUM - lba));
+		                 payload + ((SUPERSECTORNUM - lba % SUPERSECTORNUM)) * SECTORLENGTH,
+		                 lba + (SUPERSECTORNUM - lba % SUPERSECTORNUM),
+		                 lba_count - (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
 			return rc;
 		}

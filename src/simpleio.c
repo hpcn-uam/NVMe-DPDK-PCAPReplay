@@ -99,7 +99,7 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 	int rc, i = 0;
 	uint64_t dstlba;
 
-	if (lba_count < SUPERSECTORNUM) {
+	if (lba_count <= (SUPERSECTORNUM - lba)) {
 		task_scheduled++;
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
@@ -116,14 +116,14 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 			return rc;
 		}
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
-		rc = sio_rread (raid, payload, lba, lba_count % SUPERSECTORNUM);
+		rc = sio_rread (raid, payload, lba, lba_count % (SUPERSECTORNUM - lba));
 		if (rc != 0) {
 			return rc;
 		}
 		rc = sio_rread (raid,
-		                payload + (lba_count % SUPERSECTORNUM) * SECTORLENGTH,
-		                lba + lba_count % SUPERSECTORNUM,
-		                lba_count - lba_count % SUPERSECTORNUM);
+		                payload + (lba_count % (SUPERSECTORNUM - lba)) * SECTORLENGTH,
+		                lba + lba_count % (SUPERSECTORNUM - lba),
+		                lba_count - lba_count % (SUPERSECTORNUM - lba));
 		if (rc != 0) {
 			return rc;
 		}
@@ -171,7 +171,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 	int rc, i = 0;
 	uint64_t dstlba;
 
-	if (lba_count < SUPERSECTORNUM) {
+	if (lba_count <= (SUPERSECTORNUM - lba)) {
 		task_scheduled++;
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
@@ -188,14 +188,14 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 			return rc;
 		}
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
-		rc = sio_rwrite (raid, payload, lba, lba_count % SUPERSECTORNUM);
+		rc = sio_rwrite (raid, payload, lba, lba_count % (SUPERSECTORNUM - lba));
 		if (rc != 0) {
 			return rc;
 		}
 		rc = sio_rwrite (raid,
-		                 payload + (lba_count % SUPERSECTORNUM) * SECTORLENGTH,
-		                 lba + lba_count % SUPERSECTORNUM,
-		                 lba_count - lba_count % SUPERSECTORNUM);
+		                 payload + (lba_count % (SUPERSECTORNUM - lba)) * SECTORLENGTH,
+		                 lba + lba_count % (SUPERSECTORNUM - lba),
+		                 lba_count - lba_count % (SUPERSECTORNUM - lba));
 		if (rc != 0) {
 			return rc;
 		}

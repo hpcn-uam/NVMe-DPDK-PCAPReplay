@@ -293,9 +293,9 @@ int sio_rwrite_pinit (nvmeRaid* restrict raid,
 		ret = sio_rwrite (raid, mem, lba, lba_count);
 
 	} else {
-		while (lba_count >= GIGASECTORNUMGTH) {
-			memcpy (payload, mem, GIGASECTORLEGIGASECTORNUM * SECTORLENGTH);
-			ret += sio_rwrite (raid, mem, lb);
+		while (lba_count >= GIGASECTORNUM) {
+			memcpy (payload, mem, GIGASECTORLENGTH);
+			ret += sio_rwrite (raid, mem, lba, GIGASECTORNUM);
 
 			lba_count -= GIGASECTORLENGTH;
 			lba += GIGASECTORLENGTH;

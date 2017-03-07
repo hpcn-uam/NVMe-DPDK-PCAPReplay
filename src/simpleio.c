@@ -259,18 +259,18 @@ int sio_rread_pinit (nvmeRaid* restrict raid,
 	int ret   = 0;
 	void* mem = spdk_malloc (GIGASECTORLENGTH, SECTORLENGTH, NULL);
 
-	if (lba_count < GIGASECTORLENGTH) {
+	if (lba_count < GIGASECTORNUM) {
 		ret = sio_rread (raid, mem, lba, lba_count);
 		memcpy (payload, mem, lba_count * SECTORLENGTH);
 
 	} else {
-		while (lba_count >= GIGASECTORLENGTH) {
-			ret += sio_rread (raid, mem, lba, GIGASECTORLENGTH);
-			memcpy (payload, mem, GIGASECTORLENGTH * SECTORLENGTH);
+		while (lba_count >= GIGASECTORNUM) {
+			ret += sio_rread (raid, mem, lba, GIGASECTORNUM);
+			memcpy (payload, mem, GIGASECTORLENGTH);
 
 			lba_count -= GIGASECTORLENGTH;
 			lba += GIGASECTORLENGTH;
-			payload += GIGASECTORLENGTH * SECTORLENGTH;
+			payload += GIGASECTORLENGTH;
 
 			sio_waittasks (raid);
 		}
@@ -288,18 +288,18 @@ int sio_rwrite_pinit (nvmeRaid* restrict raid,
 	int ret   = 0;
 	void* mem = spdk_malloc (GIGASECTORLENGTH, SECTORLENGTH, NULL);
 
-	if (lba_count < GIGASECTORLENGTH) {
+	if (lba_count < GIGASECTORNUM) {
 		memcpy (payload, mem, lba_count * SECTORLENGTH);
 		ret = sio_rwrite (raid, mem, lba, lba_count);
 
 	} else {
-		while (lba_count >= GIGASECTORLENGTH) {
-			memcpy (payload, mem, GIGASECTORLENGTH * SECTORLENGTH);
-			ret += sio_rwrite (raid, mem, lba, GIGASECTORLENGTH);
+		while (lba_count >= GIGASECTORNUMGTH) {
+			memcpy (payload, mem, GIGASECTORLEGIGASECTORNUM * SECTORLENGTH);
+			ret += sio_rwrite (raid, mem, lb);
 
 			lba_count -= GIGASECTORLENGTH;
 			lba += GIGASECTORLENGTH;
-			payload += GIGASECTORLENGTH * SECTORLENGTH;
+			payload += GIGASECTORLENGTH;
 
 			sio_waittasks (raid);
 		}

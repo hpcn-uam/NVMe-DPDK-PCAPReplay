@@ -23,7 +23,8 @@
 #define SUPERSECTORNUM (SUPERSECTORLENGTH / METASECTORLENGTH)
 
 // Giga sectors
-#define GIGASECTORLENGTH (SUPERSECTORNUM * raid->numdisks)
+#define GIGASECTORLENGTH (SUPERSECTORLENGTH * raid->numdisks)
+#define GIGASECTORNUM (SUPERSECTORNUM * raid->numdisks)
 
 typedef struct __attribute__ ((__packed__)) {
 	char name[NAMELENGTH];

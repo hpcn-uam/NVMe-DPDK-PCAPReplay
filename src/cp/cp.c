@@ -222,7 +222,7 @@ void app_run (nvmeRaid *raid) {
 
 	} else if (ffrom_raid && fto_sys) {
 		// check if origin file exists
-		raid_file = findFile (raid, cto_raid);
+		raid_file = findFile (raid, cfrom_raid);
 		if (raid_file) {  // file exists
 			origin_size_blks = raid_file->endBlock - raid_file->startBlock;
 			origin_size      = origin_size_blks * SECTORLENGTH;

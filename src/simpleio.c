@@ -170,7 +170,8 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, uint32_t lba_count) {
 	int rc, i = 0;
 	uint64_t dstlba;
-
+	printf ("DEBUG: sio_rwrite call. lba=%lu ; lba_count=%u\n", lba, lba_count);
+	
 	if (lba_count <= (SUPERSECTORNUM - lba)) {
 		task_scheduled++;
 		i      = super_getdisk (raid, lba);

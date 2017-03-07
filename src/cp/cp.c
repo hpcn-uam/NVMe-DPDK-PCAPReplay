@@ -203,6 +203,7 @@ void app_run (nvmeRaid *raid) {
 		int fd    = fileno (f);
 		void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
+		printf("Copying %lu sectors into raid...\n",origin_size_blks);
 		if (origin_size % METASECTORLENGTH != 0) {
 			origin_size_blks--;
 			void *padding = spdk_zmalloc (SECTORLENGTH, SECTORLENGTH, NULL);

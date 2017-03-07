@@ -64,9 +64,6 @@ void app_config (int argc, char **argv) {
 }
 void app_init (nvmeRaid *raid) {
 	UNUSED (raid);
-	// clean a bit the screen
-	puts ("");
-	puts ("");
 	return;
 }
 void app_run (nvmeRaid *raid) {

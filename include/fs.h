@@ -52,6 +52,7 @@ void checkMetaConfig (void);
 int checkMeta (metaSector* m);
 void initMeta (metaSector* m, uint8_t diskId, uint8_t totalDisks);
 
+void formatRaid (nvmeRaid* raid);
 void createRaid (nvmeRaid* raid);
 void updateRaid (nvmeRaid* raid);
 

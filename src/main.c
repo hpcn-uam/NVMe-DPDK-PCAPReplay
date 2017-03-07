@@ -171,11 +171,15 @@ int main (int argc, char **argv) {
 	}
 
 	printf ("Initialization complete.\n");
-
-	createRaid (&myRaid);
-	// hello_world();
+	printf ("Initializing NVMe-Raid\n");
 
 	app_init (&myRaid);
+	createRaid (&myRaid);
+	printf ("NVMe-Raid started\n");
+	// clean a bit the screen
+	puts ("");
+	puts ("");
+
 	app_run (&myRaid);
 
 	cleanup ();

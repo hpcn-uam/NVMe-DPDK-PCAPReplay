@@ -43,6 +43,15 @@ static int cmpFile (const void *p1, const void *p2) {
 	return strncmp (((const metaFile *)p1)->name, ((const metaFile *)p2)->name, NAMELENGTH);
 }
 
+void formatRaid (nvmeRaid *raid) {
+	int i;
+	for (i = 0; i < raid->numdisks; i++) {
+		initMeta (&raid->disk[i].msector, i, raid->numdisks);
+		sio_write_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
+		printf ("Overwritting sector 0 of disk %d\n", i);
+	}
+}
+
 void createRaid (nvmeRaid *raid) {
 	int i, cnt = 0;
 
@@ -63,11 +72,7 @@ void createRaid (nvmeRaid *raid) {
 	}
 
 	if (cnt == 0) {  // all must be initialiced
-		for (i = 0; i < raid->numdisks; i++) {
-			initMeta (&raid->disk[i].msector, i, raid->numdisks);
-			sio_write_pinit (&raid->disk[i], &raid->disk[i].msector, 0, 1);
-			printf ("Overwritting sector 0 of disk %d\n", i);
-		}
+		formatRaid (raid);
 	} else if (cnt < raid->numdisks) {
 		puts (
 		    "This implementation can't handle this NVME situation. Plase, consider attaching only\n"

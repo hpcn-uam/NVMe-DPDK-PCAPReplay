@@ -1,3 +1,6 @@
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,21 +19,16 @@ static void app_usage (void) {
 	printf (
 	    "This is a NVME-DPDK-PCAPReplay %s tool\n"
 	    "\n"
-	    "Available options are:\n"
-	    "--help : To show this help info\n",
-	    "rm");
+	    "This tool will erase all the raid contents by overwritting sector 0\n",
+	    "format");
 }
 
-size_t n_files;
-char const *const *file;
+int ffrom_sys = 0, ffrom_raid = 0, fto_sys = 0, fto_raid = 0, fpcap = 0;
+char *cfrom_sys = NULL, *cfrom_raid = NULL, *cto_sys = NULL, *cto_raid = NULL;
 
 static void app_paramCheck (void) {
 	int stopExecution = 0;
 
-	if (n_files == 0) {
-		stopExecution = 1;
-		printf ("PARAM-ERROR: Need to pass at least one file to remove\n");
-	}
 	if (stopExecution) {
 		printf ("\n");
 		app_usage ();
@@ -45,41 +43,39 @@ void app_config (int argc, char **argv) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
 
-		c = getopt_long (argc, argv, ":h", long_options, &option_index);
+		c = getopt_long (argc, argv, "hps:t:y:f:", long_options, &option_index);
+
 		/* Detect the end of the options. */
 		if (c == -1)
 			break;
 
 		switch (c) {
+			case 0:
+				/* If this option set a flag, do nothing else now. */
+				if (long_options[option_index].flag != 0)
+					break;
+				printf ("option %s", long_options[option_index].name);
+				if (optarg)
+					printf (" with arg %s", optarg);
+				printf ("\n");
+				break;
+
 			case 'h':
 			case '?':
 			default:
-				puts ("default");
 				app_usage ();
 				exit (1);
 		}
 	}
-
-	n_files = argc - optind;
-	file    = (char const *const *)argv + optind;
-
 	app_paramCheck ();
 	return;
 }
 void app_init (nvmeRaid *raid) {
-	UNUSED (raid);
+	// format
+	formatRaid (raid);
 	return;
 }
 void app_run (nvmeRaid *raid) {
-	size_t i;
-
-	for (i = 0; i < n_files; i++) {
-		printf ("Trying to remove file \"%26s\"...", file[i]);
-		if (delFile (raid, file[i])) {
-			printf ("OK\n");
-		} else {
-			printf ("ERROR\n");
-		}
-	}
+	UNUSED (raid);
 	return;
 }

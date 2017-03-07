@@ -203,7 +203,7 @@ void app_run (nvmeRaid *raid) {
 		int fd    = fileno (f);
 		void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-		printf("Copying %lu sectors into raid...\n",origin_size_blks);
+		printf ("Copying %lu sectors into raid...\n", origin_size_blks);
 		if (origin_size % METASECTORLENGTH != 0) {
 			origin_size_blks--;
 			void *padding = spdk_zmalloc (SECTORLENGTH, SECTORLENGTH, NULL);
@@ -221,6 +221,37 @@ void app_run (nvmeRaid *raid) {
 		fclose (f);
 
 	} else if (ffrom_raid && fto_sys) {
+		// check if origin file exists
+		raid_file = findFile (raid, cto_raid);
+		if (raid_file) {  // file exists
+			origin_size_blks = raid_file->endBlock - raid_file->startBlock;
+			origin_size      = origin_size_blks * SECTORLENGTH;
+
+		} else {  // file does not exists
+			printf ("File not found in NVMe-raid\n");
+			return;
+		}
+
+		FILE *f = fopen (cto_sys, "w+");
+		if (f == NULL) {
+			printf ("Cant open %s for write\n", cto_sys);
+			return;
+		}
+
+		int fd = fileno (f);
+		if(ftruncate (fd, origin_size_blks)){
+			perror("Cant fixsize output file");
+			return;
+		}
+		fseek (f, 0L, SEEK_SET);  // = rewind
+
+		void *map = mmap (NULL, origin_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+
+		printf ("Copying %lu sectors from raid...\n", origin_size_blks);
+		sio_rread_pinit (raid, map, raid_file->startBlock, origin_size_blks);
+
+		munmap (map, origin_size);
+		fclose (f);
 	}
 	return;
 }

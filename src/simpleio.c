@@ -171,7 +171,6 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, uint32_t lba_count) {
 	int rc, i = 0;
 	uint64_t dstlba;
-	printf ("DEBUG: sio_rwrite call. lba=%lu ; lba_count=%u\n", lba, lba_count);
 
 	if (lba_count <= (SUPERSECTORNUM - lba)) {
 		i      = super_getdisk (raid, lba);
@@ -184,11 +183,6 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 		                             sio_write_complete,
 		                             &task_completed,
 		                             0);
-		printf ("DEBUG: writing %u sectors @ sector %lu in sector %lu of disk %d\n",
-		        lba_count,
-		        lba,
-		        dstlba,
-		        i);
 		if (rc != 0) {
 			fprintf (stderr, "starting write I/O failed\n");
 			return rc;

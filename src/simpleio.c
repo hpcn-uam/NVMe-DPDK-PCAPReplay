@@ -100,7 +100,6 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 	uint64_t dstlba;
 
 	if (lba_count <= (SUPERSECTORNUM - lba)) {
-		task_scheduled++;
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
 		rc     = spdk_nvme_ns_cmd_read (raid->disk[i].ns,
@@ -115,6 +114,7 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 			fprintf (stderr, "starting read I/O failed\n");
 			return rc;
 		}
+		task_scheduled++;
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
 		rc = sio_rread (raid, payload, lba, (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
@@ -144,6 +144,7 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 				fprintf (stderr, "read I/O failed\n");
 				return rc;
 			}
+			task_scheduled++;
 			// move offsets
 			lba_count -= SUPERSECTORNUM;
 			lba += SUPERSECTORNUM;
@@ -173,7 +174,6 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 	printf ("DEBUG: sio_rwrite call. lba=%lu ; lba_count=%u\n", lba, lba_count);
 
 	if (lba_count <= (SUPERSECTORNUM - lba)) {
-		task_scheduled++;
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
 		rc     = spdk_nvme_ns_cmd_write (raid->disk[i].ns,
@@ -193,6 +193,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 			fprintf (stderr, "starting write I/O failed\n");
 			return rc;
 		}
+		task_scheduled++;
 	} else if (lba % SUPERSECTORNUM) {  // unalligned
 		rc = sio_rwrite (raid, payload, lba, (SUPERSECTORNUM - lba % SUPERSECTORNUM));
 		if (rc != 0) {
@@ -228,6 +229,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 				fprintf (stderr, "write I/O failed\n");
 				return rc;
 			}
+			task_scheduled++;
 			// move offsets
 			lba_count -= SUPERSECTORNUM;
 			lba += SUPERSECTORNUM;
@@ -326,7 +328,7 @@ int sio_rwrite_pinit (nvmeRaid* restrict raid,
 // Wait until all tasks finishes
 void sio_waittasks (nvmeRaid* raid) {
 	int i;
-	while (!task_completed < task_scheduled) {
+	while (task_scheduled > task_completed) {
 		for (i = 0; i < raid->numdisks; i++) {
 			spdk_nvme_qpair_process_completions (raid->disk[i].qpair, 0);
 		}

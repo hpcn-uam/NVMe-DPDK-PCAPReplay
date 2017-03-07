@@ -70,9 +70,10 @@ void createRaid (nvmeRaid *raid) {
 		}
 	} else if (cnt < raid->numdisks) {
 		puts (
-		    "This implementation can't handle this NVME situation. Plase, consider attaching only "
+		    "This implementation can't handle this NVME situation. Plase, consider attaching only\n"
 		    "the initialiced NVMes or clean its metadata (Which will erase all its contents)\n"
-		    "In future realeases, increasing the number of NVMes in raid would be supported");
+		    "In future realeases, increasing the number of NVMes in raid would be supported\n");
+		printf ("note: %d NVMe with metadata vs %d NVMe expected\n", cnt, raid->numdisks);
 		exit (-1);
 	}
 

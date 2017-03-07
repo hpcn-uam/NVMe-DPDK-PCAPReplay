@@ -122,7 +122,7 @@ uint64_t rightFreeBlocks (nvmeRaid *raid) {
 }
 
 uint64_t rightFreeBlock (nvmeRaid *raid) {
-	uint64_t mostRight = raid->numdisks;  // keep the metasectors
+	uint64_t mostRight = raid->numdisks * SUPERSECTORNUM;  // keep the metasectors
 	int i, j;
 	for (i = 0; i < raid->numdisks; i++) {
 		for (j = 0; j < MAXFILES; j++) {
@@ -219,5 +219,6 @@ uint64_t super_getdisk (nvmeRaid *raid, uint64_t lba) {
 }
 uint64_t super_getdisklba (nvmeRaid *raid, uint64_t lba) {
 	return lba - ((super_getid (raid, lba) - (super_getid (raid, lba) / raid->numdisks)) *
-	              SUPERSECTORNUM);
+	              SUPERSECTORNUM) +
+	       SUPERSECTORNUM;
 }

@@ -183,7 +183,11 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 		                             sio_write_complete,
 		                             &task_completed,
 		                             0);
-		printf ("DEBUG: writing sector %lu in sector %lu of disk %d\n", lba, dstlba, i);
+		printf ("DEBUG: writing %u sectors @ sector %lu in sector %lu of disk %d\n",
+		        lba_count,
+		        lba,
+		        dstlba,
+		        i);
 		if (rc != 0) {
 			fprintf (stderr, "starting write I/O failed\n");
 			return rc;
@@ -214,7 +218,11 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 			                             &task_completed,
 			                             0);
 
-			printf ("DEBUG2: writing sector %lu in sector %lu of disk %d\n", lba, dstlba, i);
+			printf ("DEBUG2: writing %lu sectors @ sector %lu in sector %lu of disk %d\n",
+			        SUPERSECTORNUM,
+			        lba,
+			        dstlba,
+			        i);
 			if (rc != 0) {
 				fprintf (stderr, "write I/O failed\n");
 				return rc;

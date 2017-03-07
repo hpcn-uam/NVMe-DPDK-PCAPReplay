@@ -171,7 +171,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 	int rc, i = 0;
 	uint64_t dstlba;
 	printf ("DEBUG: sio_rwrite call. lba=%lu ; lba_count=%u\n", lba, lba_count);
-	
+
 	if (lba_count <= (SUPERSECTORNUM - lba)) {
 		task_scheduled++;
 		i      = super_getdisk (raid, lba);
@@ -257,15 +257,15 @@ int sio_rread_pinit (nvmeRaid* restrict raid,
                      uint64_t lba,
                      uint32_t lba_count) {
 	int ret   = 0;
-	void* mem = spdk_malloc (RAIDPINCACHE, SECTORLENGTH, NULL);
+	void* mem = spdk_malloc (GIGASECTORLENGTH, SECTORLENGTH, NULL);
 
-	if (lba_count < RAIDPINCACHE) {
+	if (lba_count < GIGASECTORLENGTH) {
 		ret = sio_rread (raid, mem, lba, lba_count);
 		memcpy (payload, mem, lba_count * SECTORLENGTH);
 
 	} else {
-		while (lba_count >= RAIDPINCACHE) {
-			ret += sio_rread (raid, mem, lba, RAIDPINCACHE);
+		while (lba_count >= GIGASECTORLENGTH) {
+			ret += sio_rread (raid, mem, lba, GIGASECTORLENGTH);
 			memcpy (payload, mem, lba_count * SECTORLENGTH);
 
 			lba_count -= SECTORLENGTH;
@@ -286,15 +286,15 @@ int sio_rwrite_pinit (nvmeRaid* restrict raid,
                       uint64_t lba,
                       uint32_t lba_count) {
 	int ret   = 0;
-	void* mem = spdk_malloc (RAIDPINCACHE, SECTORLENGTH, NULL);
+	void* mem = spdk_malloc (GIGASECTORLENGTH, SECTORLENGTH, NULL);
 
-	if (lba_count < RAIDPINCACHE) {
+	if (lba_count < GIGASECTORLENGTH) {
 		ret = sio_rwrite (raid, mem, lba, lba_count);
 		memcpy (payload, mem, lba_count * SECTORLENGTH);
 
 	} else {
-		while (lba_count >= RAIDPINCACHE) {
-			ret += sio_rwrite (raid, mem, lba, RAIDPINCACHE);
+		while (lba_count >= GIGASECTORLENGTH) {
+			ret += sio_rwrite (raid, mem, lba, GIGASECTORLENGTH);
 			memcpy (payload, mem, lba_count * SECTORLENGTH);
 
 			lba_count -= SECTORLENGTH;

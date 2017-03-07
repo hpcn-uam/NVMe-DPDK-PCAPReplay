@@ -7,17 +7,23 @@
 #include <stdio.h>
 #include <string.h>
 
+// FS config
 #define CURVERSION 1
+#define NAMELENGTH 26
+#define MAXFILES 12
+#define MAXDISKS 8
 
+// Meta sectors
 #define MAGICNUMBER 0xCACA0FE0
 #define SECTORLENGTH 512lu
 #define METASECTORLENGTH SECTORLENGTH
+
+// Super sectors
 #define SUPERSECTORLENGTH (128lu * 1024lu)  // 128K that is the best for performance
 #define SUPERSECTORNUM (SUPERSECTORLENGTH / METASECTORLENGTH)
-#define NAMELENGTH 26
-#define MAXFILES 12
 
-#define MAXDISKS 8
+// Giga sectors
+#define GIGASECTORLENGTH (SUPERSECTORNUM * raid->numdisks)
 
 typedef struct __attribute__ ((__packed__)) {
 	char name[NAMELENGTH];

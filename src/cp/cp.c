@@ -239,7 +239,7 @@ void app_run (nvmeRaid *raid) {
 		}
 
 		int fd = fileno (f);
-		if(ftruncate (fd, origin_size_blks)){
+		if(ftruncate (fd, origin_size)){
 			perror("Cant fixsize output file");
 			return;
 		}

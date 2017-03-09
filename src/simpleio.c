@@ -260,24 +260,25 @@ int sio_rread_pinit (nvmeRaid* restrict raid,
 		exit (-1);
 	}
 
-	if (lba_count < GIGASECTORNUM)
-	repin : {
+	while (lba_count >= GIGASECTORNUM) {
+		ret += sio_rread (raid, mem, lba, GIGASECTORNUM);
+		if (ret) {
+			return ret;
+		}
+		sio_waittasks (raid);
+		memcpy (payload, mem, GIGASECTORLENGTH);
+
+		lba_count -= GIGASECTORNUM;
+		lba += GIGASECTORNUM;
+		payload += GIGASECTORLENGTH;
+	}
+	if (lba_count) {
 		ret = sio_rread (raid, mem, lba, lba_count);
 		sio_waittasks (raid);
-		memcpy (payload, mem, lba_count * SECTORLENGTH);
-	}
-	else {
-		while (lba_count >= GIGASECTORNUM) {
-			ret += sio_rread (raid, mem, lba, GIGASECTORNUM);
-			sio_waittasks (raid);
-			memcpy (payload, mem, GIGASECTORLENGTH);
-
-			lba_count -= GIGASECTORNUM;
-			lba += GIGASECTORNUM;
-			payload += GIGASECTORLENGTH;
+		memcpy (payload, mem, GIGASECTORLENGTH);
+		if (ret) {
+			return ret;
 		}
-		if (lba_count)
-			goto repin;
 	}
 
 	spdk_free (mem);
@@ -295,24 +296,25 @@ int sio_rwrite_pinit (nvmeRaid* restrict raid,
 		exit (-1);
 	}
 
-	if (lba_count < GIGASECTORNUM)
-	repin : {
+	while (lba_count >= GIGASECTORNUM) {
+		memcpy (mem, payload, GIGASECTORLENGTH);
+		ret += sio_rwrite (raid, mem, lba, GIGASECTORNUM);
+		if (ret) {
+			return ret;
+		}
+		sio_waittasks (raid);
+
+		lba_count -= GIGASECTORNUM;
+		lba += GIGASECTORNUM;
+		payload += GIGASECTORLENGTH;
+	}
+	if (lba_count) {
 		memcpy (mem, payload, lba_count * SECTORLENGTH);
 		ret = sio_rwrite (raid, mem, lba, lba_count);
-	}
-	else {
-		while (lba_count >= GIGASECTORNUM) {
-			memcpy (mem, payload, GIGASECTORLENGTH);
-			ret += sio_rwrite (raid, mem, lba, GIGASECTORNUM);
-
-			lba_count -= GIGASECTORNUM;
-			lba += GIGASECTORNUM;
-			payload += GIGASECTORLENGTH;
-
-			sio_waittasks (raid);
+		sio_waittasks (raid);
+		if (ret) {
+			return ret;
 		}
-		if (lba_count)
-			goto repin;
 	}
 
 	spdk_free (mem);

@@ -245,7 +245,7 @@ void app_run (nvmeRaid *raid) {
 		}
 		fseek (f, 0L, SEEK_SET);  // = rewind
 
-		void *map = mmap (NULL, origin_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+		void *map = mmap (NULL, origin_size, PROT_WRITE, MAP_SHARED, fd, 0);
 
 		printf ("Copying %lu sectors from raid...\n", origin_size_blks);
 		sio_rread_pinit (raid, map, raid_file->startBlock, origin_size_blks);

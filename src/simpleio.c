@@ -263,18 +263,18 @@ int sio_rread_pinit (nvmeRaid* restrict raid,
 	if (lba_count < GIGASECTORNUM)
 	repin : {
 		ret = sio_rread (raid, mem, lba, lba_count);
+		sio_waittasks (raid);
 		memcpy (payload, mem, lba_count * SECTORLENGTH);
 	}
 	else {
 		while (lba_count >= GIGASECTORNUM) {
 			ret += sio_rread (raid, mem, lba, GIGASECTORNUM);
+			sio_waittasks (raid);
 			memcpy (payload, mem, GIGASECTORLENGTH);
 
 			lba_count -= GIGASECTORNUM;
 			lba += GIGASECTORNUM;
 			payload += GIGASECTORLENGTH;
-
-			sio_waittasks (raid);
 		}
 		if (lba_count)
 			goto repin;

@@ -275,7 +275,7 @@ int sio_rread_pinit (nvmeRaid* restrict raid,
 	if (lba_count) {
 		ret = sio_rread (raid, mem, lba, lba_count);
 		sio_waittasks (raid);
-		memcpy (payload, mem, GIGASECTORLENGTH);
+		memcpy (payload, mem, lba_count * SECTORLENGTH);
 		if (ret) {
 			return ret;
 		}

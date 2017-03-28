@@ -5,6 +5,7 @@
 
 #include <fs.h>
 #include <simpleio.h>
+#include <spcap.h>
 
 static const char pcapExt[] = ".nscap";
 

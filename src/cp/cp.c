@@ -82,7 +82,7 @@ void app_config (int argc, char **argv) {
 	int c;
 	while (1) {
 		static struct option long_options[] = {{"help", no_argument, 0, 'h'},
-		                                       {"pcap", no_argument, 0, 'p'},
+		                                       {"nscap", no_argument, 0, 'p'},
 		                                       {"from-sys", required_argument, 0, 'y'},
 		                                       {"from-raid", required_argument, 0, 'f'},
 		                                       {"to-sys", required_argument, 0, 's'},
@@ -192,6 +192,10 @@ void app_run (nvmeRaid *raid) {
 				    fsize);
 				return;
 			}
+			if (fpcap) {
+				printf ("Cannot overwrite pcap-file\n");
+				return;
+			}
 
 		} else {  // file does not exists
 			raid_file = addFile (raid, cto_raid, origin_size_blks);
@@ -200,25 +204,38 @@ void app_run (nvmeRaid *raid) {
 			}
 		}
 
-		int fd    = fileno (f);
-		void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (!fpcap) {  // if regular file
+			int fd    = fileno (f);
+			void *map = mmap (NULL, origin_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-		printf ("Copying %lu sectors into raid...\n", origin_size_blks);
-		if (origin_size % METASECTORLENGTH != 0) {
-			origin_size_blks--;
-			void *padding = spdk_zmalloc (SECTORLENGTH, SECTORLENGTH, NULL);
-			memcpy (padding,
-			        map + origin_size_blks * SECTORLENGTH,
-			        origin_size - origin_size_blks * SECTORLENGTH);
-			sio_rwrite (raid, padding, raid_file->startBlock + origin_size_blks, 1);
+			printf ("Copying %lu sectors into raid...\n", origin_size_blks);
+			if (origin_size % METASECTORLENGTH != 0) {
+				origin_size_blks--;
+				void *padding = spdk_zmalloc (SECTORLENGTH, SECTORLENGTH, NULL);
+				memcpy (padding,
+				        map + origin_size_blks * SECTORLENGTH,
+				        origin_size - origin_size_blks * SECTORLENGTH);
+				sio_rwrite (raid, padding, raid_file->startBlock + origin_size_blks, 1);
+			}
+
+			if (origin_size_blks) {  // only call if there are blocks to write.
+				sio_rwrite_pinit (raid, map, raid_file->startBlock, origin_size_blks);
+			}
+
+			munmap (map, origin_size);
 		}
-
-		if (origin_size_blks) {  // only call if there are blocks to write.
-			sio_rwrite_pinit (raid, map, raid_file->startBlock, origin_size_blks);
-		}
-
-		munmap (map, origin_size);
 		fclose (f);
+
+		if (fpcap) {  // if pcap file
+			spcap sp;
+			raid_file->endBlock = raid_file->startBlock;
+
+			printf ("Copying PCAP into raid...\n");
+			if (initSpcap (&sp, raid, raid_file)) {
+				printf ("error starting spcap-lib\n");
+			}
+			writePCAP2raid (&sp, cfrom_sys);
+		}
 
 	} else if (ffrom_raid && fto_sys) {
 		// check if origin file exists
@@ -239,8 +256,8 @@ void app_run (nvmeRaid *raid) {
 		}
 
 		int fd = fileno (f);
-		if(ftruncate (fd, origin_size)){
-			perror("Cant fixsize output file");
+		if (ftruncate (fd, origin_size)) {
+			perror ("Cant fixsize output file");
 			return;
 		}
 		fseek (f, 0L, SEEK_SET);  // = rewind

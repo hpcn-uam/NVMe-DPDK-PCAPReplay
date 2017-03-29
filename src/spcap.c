@@ -16,7 +16,7 @@ int initSpcap (spcap* restrict spcapf, nvmeRaid* restrict raid, metaFile* restri
 		if (!spcapf->currPtr[i])
 			return -1;
 		spcapf->dataWrote[i] = 0;
-		spcapf->curlba[i]    = super_getdisklba (raid, file->startBlock + i);
+		spcapf->curlba[i]    = super_getdisklba (raid, file->startBlock + i*SUPERSECTORNUM);
 	}
 	return 0;
 }

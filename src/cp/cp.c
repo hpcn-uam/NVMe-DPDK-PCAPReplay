@@ -235,6 +235,7 @@ void app_run (nvmeRaid *raid) {
 				printf ("error starting spcap-lib\n");
 			}
 			writePCAP2raid (&sp, cfrom_sys);
+			freeSpcap(&sp);
 		}
 
 	} else if (ffrom_raid && fto_sys) {

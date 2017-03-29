@@ -9,6 +9,8 @@
 /*Common*/
 int initSpcap (spcap* restrict spcapf, nvmeRaid* restrict raid, metaFile* restrict file) {
 	int i;
+	bzero (spcapf, sizeof (spcap));  // set everything to 0
+
 	spcapf->raid = raid;
 	spcapf->file = file;
 	for (i = 0; i < raid->numdisks; i++) {
@@ -16,7 +18,7 @@ int initSpcap (spcap* restrict spcapf, nvmeRaid* restrict raid, metaFile* restri
 		if (!spcapf->currPtr[i])
 			return -1;
 		spcapf->dataWrote[i] = 0;
-		spcapf->curlba[i]    = super_getdisklba (raid, file->startBlock + i*SUPERSECTORNUM);
+		spcapf->curlba[i]    = super_getdisklba (raid, file->startBlock + i * SUPERSECTORNUM);
 	}
 	return 0;
 }

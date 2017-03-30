@@ -28,13 +28,18 @@ int initSpcap (spcap* restrict spcapf, nvmeRaid* restrict raid, metaFile* restri
 }
 void freeSpcap (spcap* spcapf) {
 	int i;
+	for (i = 0; i < spcapf->raid->numdisks; i++) {
+		spcap_header header = {.nsw8 = 0, .size = 0, .esize = 0};
+		writeBuff (spcapf, i, sizeof (spcap_header), &header);  // write header
+	}
 	flushBuffs (spcapf);
 	for (i = 0; i < spcapf->raid->numdisks; i++) {
 		if (spcapf->buffs[i])
 			spdk_free (spcapf->buffs[i]);
 	}
-	spcapf->file->endBlock = (spcapf->file->endBlock - spcapf->file->startBlock) % SUPERSECTORNUM *
-	                         spcapf->raid->numdisks;
+	// spcapf->file->endBlock = (spcapf->file->endBlock - spcapf->file->startBlock) % SUPERSECTORNUM
+	// *
+	//                         spcapf->raid->numdisks;
 	updateRaid (spcapf->raid);
 }
 
@@ -62,7 +67,7 @@ void flushBuffs (spcap* spcapf) {
 	for (diskid = 0; diskid < spcapf->raid->numdisks; diskid++) {
 		if (spcapf->dataWrote[diskid] % SUPERSECTORLENGTH) {  // If it is != 0, then not flushed
 			if (sio_write (&spcapf->raid->disk[diskid],
-			               spcapf->currPtr[diskid] - SUPERSECTORLENGTH,
+			               spcapf->currPtr[diskid] - spcapf->dataWrote[diskid] % SUPERSECTORLENGTH,
 			               spcapf->curlba[diskid],
 			               SUPERSECTORNUM)) {
 				printf ("Error writing to raid PCAP packets\n");

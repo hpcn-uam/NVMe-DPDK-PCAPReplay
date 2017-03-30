@@ -14,11 +14,15 @@ int initSpcap (spcap* restrict spcapf, nvmeRaid* restrict raid, metaFile* restri
 	spcapf->raid = raid;
 	spcapf->file = file;
 	for (i = 0; i < raid->numdisks; i++) {
-		spcapf->currPtr[i] = spcapf->buffs[i] = spdk_zmalloc (BUFFSIZE, SUPERSECTORLENGTH, NULL);
-		if (!spcapf->currPtr[i])
+		uint64_t currentlba = super_getdisklba (raid, file->startBlock + i * SUPERSECTORNUM);
+		uint64_t currentDsk = super_getdisk (raid, file->startBlock + i * SUPERSECTORNUM);
+
+		spcapf->currPtr[currentDsk] = spcapf->buffs[currentDsk] =
+		    spdk_zmalloc (BUFFSIZE, SUPERSECTORLENGTH, NULL);
+		if (!spcapf->currPtr[currentDsk])
 			return -1;
-		spcapf->dataWrote[i] = 0;
-		spcapf->curlba[i]    = super_getdisklba (raid, file->startBlock + i * SUPERSECTORNUM);
+		spcapf->dataWrote[currentDsk] = 0;
+		spcapf->curlba[currentDsk]    = currentlba;
 	}
 	return 0;
 }

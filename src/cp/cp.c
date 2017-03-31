@@ -198,6 +198,7 @@ void app_run (nvmeRaid *raid) {
 			}
 			// update file length
 			raid_file->endBlock = raid_file->startBlock + origin_size_blks;
+			updateRaid (raid);
 
 		} else {  // file does not exists
 			raid_file = addFile (raid, cto_raid, origin_size_blks);

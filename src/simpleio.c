@@ -129,7 +129,7 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 		}
 	} else {  // perfectly alligned
 		int k = 0;
-		while (lba_count) {
+		while (lba_count >= SUPERSECTORNUM) {
 			i      = super_getdisk (raid, lba);
 			dstlba = super_getdisklba (raid, lba);
 			rc     = spdk_nvme_ns_cmd_read (raid->disk[i].ns,
@@ -158,6 +158,9 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 					spdk_nvme_qpair_process_completions (raid->disk[i].qpair, 0);
 				}
 			}
+		}
+		if (lba_count) {
+			rc = sio_rread (raid, payload, lba, lba_count);
 		}
 	}
 
@@ -202,7 +205,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 		}
 	} else {  // perfectly alligned
 		int k = 0;
-		while (lba_count) {
+		while (lba_count >= SUPERSECTORNUM) {
 			i      = super_getdisk (raid, lba);
 			dstlba = super_getdisklba (raid, lba);
 			rc     = spdk_nvme_ns_cmd_write (raid->disk[i].ns,
@@ -237,6 +240,9 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 					spdk_nvme_qpair_process_completions (raid->disk[i].qpair, 0);
 				}
 			}
+		}
+		if (lba_count) {
+			rc = sio_rwrite (raid, payload, lba, lba_count);
 		}
 	}
 

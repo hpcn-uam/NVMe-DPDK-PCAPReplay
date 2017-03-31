@@ -196,6 +196,8 @@ void app_run (nvmeRaid *raid) {
 				printf ("Cannot overwrite pcap-file\n");
 				return;
 			}
+			// update file length
+			raid_file->endBlock = raid_file->startBlock + origin_size_blks;
 
 		} else {  // file does not exists
 			raid_file = addFile (raid, cto_raid, origin_size_blks);
@@ -235,7 +237,7 @@ void app_run (nvmeRaid *raid) {
 				printf ("error starting spcap-lib\n");
 			}
 			writePCAP2raid (&sp, cfrom_sys);
-			freeSpcap(&sp);
+			freeSpcap (&sp);
 		}
 
 	} else if (ffrom_raid && fto_sys) {

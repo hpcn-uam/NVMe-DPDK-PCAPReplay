@@ -87,7 +87,7 @@ void app_run (nvmeRaid *raid) {
 		printf ("\n %lu Block reserved/used from %lu total (%lf %%)\n",
 		        raid->totalBlocks - rightFreeBlocks (raid),
 		        raid->totalBlocks,
-		        raid->totalBlocks / (double)rightFreeBlocks (raid));
+		        ((double)raid->totalBlocks) / ((double)rightFreeBlocks (raid)));
 	}
 	return;
 }

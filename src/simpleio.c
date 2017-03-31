@@ -99,7 +99,7 @@ int sio_rread (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, ui
 	int rc, i = 0;
 	uint64_t dstlba;
 
-	if (lba_count <= (SUPERSECTORNUM - lba)) {
+	if (lba_count <= (SUPERSECTORNUM - lba % SUPERSECTORNUM)) {
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
 		rc     = spdk_nvme_ns_cmd_read (raid->disk[i].ns,
@@ -172,7 +172,7 @@ int sio_rwrite (nvmeRaid* restrict raid, void* restrict payload, uint64_t lba, u
 	int rc, i = 0;
 	uint64_t dstlba;
 
-	if (lba_count <= (SUPERSECTORNUM - lba)) {
+	if (lba_count <= (SUPERSECTORNUM - lba % SUPERSECTORNUM)) {  // sector a escribir < supersector
 		i      = super_getdisk (raid, lba);
 		dstlba = super_getdisklba (raid, lba);
 		rc     = spdk_nvme_ns_cmd_write (raid->disk[i].ns,

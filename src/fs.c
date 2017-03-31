@@ -218,7 +218,12 @@ uint64_t super_getdisk (nvmeRaid *raid, uint64_t lba) {
 	return super_getid (raid, lba) % raid->numdisks;
 }
 uint64_t super_getdisklba (nvmeRaid *raid, uint64_t lba) {
-	return lba - ((super_getid (raid, lba) - (super_getid (raid, lba) / raid->numdisks)) *
-	              SUPERSECTORNUM) +
+	return (lba - ((super_getid (raid, lba) - (super_getid (raid, lba) / raid->numdisks)) *
+	               SUPERSECTORNUM)) +
 	       SUPERSECTORNUM;
 }
+
+// lba=3300
+// SUPERSECTORNUM = 256
+
+3300 - (3300 / 256 - 3300 / 256 / 6) * 256 + 256 3300 - (12 - 2) * 256 + 256

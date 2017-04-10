@@ -1,7 +1,8 @@
 #/bin/bash
 
 # Sync submodules with NVMe DPDK-PCAPReplay tested version
-git submodule update --init
+git pull
+git submodule update --init --recursive
 
 # Compile dependencies
 ./buildScripts/buildDeps.sh

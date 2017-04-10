@@ -137,16 +137,13 @@ int main (int argc, char **argv) {
 	// First of all, try to configure the app
 	app_config (argc, argv);
 
-	/*
-	 * By default, the SPDK NVMe driver uses DPDK for huge page-based
-	 *  memory management and NVMe request buffer pools.  Huge pages can
-	 *  be either 2MB or 1GB in size (instead of 4KB) and are pinned in
-	 *  memory.  Pinned memory is important to ensure DMA operations
-	 *  never target swapped out memory.
-	 *
-	 * So first we must initialize DPDK.  "-c 0x1" indicates to only use
-	 *  core 0.
-	 */
+	/* Init EAL */
+	/*ret = rte_eal_init (argc, argv);
+	if (ret < 0)
+	    return -1;
+	argc -= ret;
+	argv += ret;*/
+
 	// strcpy (ealargs[0], argv[0]);
 	rc = rte_eal_init (sizeof (ealargs) / sizeof (ealargs[0]), ealargs);
 	if (rc < 0) {

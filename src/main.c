@@ -153,7 +153,7 @@ int main (int argc, char **argv) {
 	opts.shm_id    = -1;
 	spdk_env_init (&opts);
 
-	printf ("Initializing NVMe Controllers\n");
+	printf ("Attaching to NVMe Controllers\n");
 
 	/*
 	 * Start the SPDK NVMe enumeration process.  probe_cb will be called
@@ -169,8 +169,8 @@ int main (int argc, char **argv) {
 		return 1;
 	}
 
-	printf ("Initialization complete.\n");
-	printf ("Initializing NVMe-Raid\n");
+	printf ("Attach completed.\n");
+	printf ("Starting NVMe-Raid\n");
 
 	app_init (&myRaid);
 	createRaid (&myRaid);

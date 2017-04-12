@@ -39,8 +39,8 @@
 #include <rte_config.h>
 #include <rte_eal.h>
 
-#include "spdk/nvme.h"
 #include "spdk/env.h"
+#include "spdk/nvme.h"
 
 #include <common.h>
 
@@ -72,7 +72,7 @@ static void register_ns (struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 	        spdk_nvme_ns_get_size (ns) / 1000000000);
 
 	myRaid.disk[myRaid.numdisks].ctrlr = ctrlr;
-	myRaid.disk[myRaid.numdisks].ns = ns;
+	myRaid.disk[myRaid.numdisks].ns    = ns;
 	myRaid.disk[myRaid.numdisks].qpair =
 	    spdk_nvme_ctrlr_alloc_io_qpair (ctrlr, SPDK_NVME_QPRIO_URGENT);
 	if (myRaid.disk[myRaid.numdisks].qpair == NULL) {
@@ -127,11 +127,8 @@ static void attach_cb (void *cb_ctx,
 static void cleanup (void) {
 }
 
-static char *ealargs[] = {
-    "hello_world", "-c 0x1", "-n 4", "--proc-type=auto",
-};
-
 int main (int argc, char **argv) {
+	struct spdk_env_opts opts;
 	int rc;
 
 	// First of all, try to configure the app
@@ -145,11 +142,16 @@ int main (int argc, char **argv) {
 	argv += ret;*/
 
 	// strcpy (ealargs[0], argv[0]);
-	rc = rte_eal_init (sizeof (ealargs) / sizeof (ealargs[0]), ealargs);
+	/*rc = rte_eal_init (sizeof (ealargs) / sizeof (ealargs[0]), ealargs);
 	if (rc < 0) {
-		fprintf (stderr, "could not initialize dpdk\n");
-		return 1;
-	}
+	    fprintf (stderr, "could not initialize dpdk\n");
+	    return 1;
+	}*/
+	spdk_env_opts_init (&opts);
+	opts.name      = "replay";
+	opts.core_mask = "0xf";
+	opts.shm_id    = -1;
+	spdk_env_init (&opts);
 
 	printf ("Initializing NVMe Controllers\n");
 

@@ -35,7 +35,7 @@ SPDK_ROOT_DIR := $(abspath $(CURDIR)/../spdk)
 INCLUDE_DIR := $(abspath $(CURDIR)/../include)
 include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 
-DIRS-y += ls cp rm format
+DIRS-y += ls cp rm format replay
 CFLAGS += -I $(INCLUDE_DIR)
 
 .PHONY: all clean $(DIRS-y)

@@ -35,15 +35,42 @@ SPDK_ROOT_DIR := $(abspath $(CURDIR)/../../spdk)
 INCLUDE_DIR := $(abspath $(CURDIR)/../../include)
 include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
 
-DEPCS =  $(wildcard ../*.c)
-DEPOBJS =  $(DEPCS:.c=)
-
 MECS =  $(wildcard *.c)
 MEOBJ =  $(MECS:.c=)
 
-APP = $(MEOBJ) $(DEPOBJS)
+C_SRCS = $(wildcard ../*.c) $(MECS:.c=.o)
+
+APP = $(MEOBJ)
 
 CFLAGS += -I $(INCLUDE_DIR) -g
 LDFLAGS += -lpcap
 
-include $(SPDK_ROOT_DIR)/mk/nvme.libtest.mk
+#from SPDK
+NVME_DIR := $(SPDK_ROOT_DIR)/lib/nvme
+include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
+include $(SPDK_ROOT_DIR)/mk/spdk.app.mk
+include $(SPDK_ROOT_DIR)/lib/env_dpdk/env.mk
+
+# DPDK deps
+DPDK_LIB_LIST = rte_mbuf rte_eal rte_mempool rte_ring rte_pipeline rte_port rte_table rte_sched rte_timer rte_acl rte_hash rte_lpm rte_kni rte_net rte_ethdev rte_reorder rte_kvargs rte_ip_frag
+# Drivers
+DPDK_LIB_LIST += rte_pmd_fm10k rte_pmd_i40e rte_pmd_ixgbe
+
+CFLAGS += -I. $(ENV_CFLAGS)
+SPDK_LIB_LIST = nvme util log
+LIBS += $(SPDK_LIB_LINKER_ARGS) $(ENV_LINKER_ARGS) -lrt -lm #-lrte_pmd_mlx5
+
+ifeq ($(CONFIG_RDMA),y)
+LIBS += -libverbs -lrdmacm
+endif
+
+all: $(APP)
+
+$(APP) : $(OBJS) $(SPDK_LIB_FILES) $(ENV_LIBS)
+	$(LINK_C)
+
+clean:
+	$(CLEAN_C) $(APP)
+
+#include $(DPDK_DIR)/../mk/rte.app.mk
+include $(SPDK_ROOT_DIR)/mk/spdk.deps.mk

@@ -396,11 +396,6 @@ extern unsigned sndpktlen;
 
 extern struct pktLatencyStat *latencyStats;
 
-// calibration and autoconf
-extern int autoCalibrate;
-extern int fixMeasurements;
-extern FILE *calibfd;
-
 #ifndef REPLAY_ARG_ETH_SIZE_CHARS
 #define REPLAY_ARG_ETH_SIZE_CHARS (2 * 6 + 1 * 5)
 #endif
@@ -517,20 +512,6 @@ static int parse_arg_outputFile (const char *arg) {
 	return !f;
 }
 
-static int parse_arg_calibrate (const char *arg) {
-	autoCalibrate = 1;
-
-	FILE *calibfd = fopen ("w+", arg);
-	return !calibfd;
-}
-
-static int parse_arg_calibration (const char *arg) {
-	fixMeasurements = 1;
-
-	FILE *calibfd = fopen ("r", arg);
-	return !calibfd;
-}
-
 /* Parse the argument given in the command line of the replaylication */
 int replay_parse_args (int argc, char **argv) {
 	int opt, ret;
@@ -562,9 +543,6 @@ int replay_parse_args (int argc, char **argv) {
 	                                 {"sts", 0, 0, 0},
 	                                 // debug
 	                                 {"hw", 0, 0, 0},
-	                                 // calibrarion
-	                                 {"calibrate", 1, 0, 0},
-	                                 {"calibration", 1, 0, 0},
 	                                 // Misc functions
 	                                 {"outputFile", 1, 0, 0},
 	                                 // endlist
@@ -689,24 +667,6 @@ int replay_parse_args (int argc, char **argv) {
 					ret = parse_arg_waitTime (optarg);
 					if (ret) {
 						printf ("Incorrect value for --waitTime argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "calibrate")) {
-					ret = parse_arg_calibrate (optarg);
-					if (ret) {
-						printf ("Incorrect value for --calibrate argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "calibration")) {
-					ret = parse_arg_calibration (optarg);
-					if (ret) {
-						printf ("Incorrect value for --calibration argument (%s, error code: %d)\n",
 						        optarg,
 						        ret);
 						return -1;

@@ -31,47 +31,47 @@
  *   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <sys/types.h>
-#include <string.h>
-#include <sys/queue.h>
-#include <stdarg.h>
 #include <errno.h>
 #include <getopt.h>
+#include <inttypes.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/queue.h>
+#include <sys/types.h>
 
-#include <rte_common.h>
-#include <rte_byteorder.h>
-#include <rte_log.h>
-#include <rte_malloc.h>
-#include <rte_memory.h>
-#include <rte_memcpy.h>
-#include <rte_memzone.h>
-#include <rte_tailq.h>
-#include <rte_eal.h>
-#include <rte_per_lcore.h>
-#include <rte_launch.h>
 #include <rte_atomic.h>
-#include <rte_cycles.h>
-#include <rte_prefetch.h>
-#include <rte_lcore.h>
-#include <rte_per_lcore.h>
 #include <rte_branch_prediction.h>
-#include <rte_interrupts.h>
-#include <rte_pci.h>
-#include <rte_random.h>
+#include <rte_byteorder.h>
+#include <rte_common.h>
+#include <rte_cycles.h>
 #include <rte_debug.h>
-#include <rte_ether.h>
+#include <rte_eal.h>
 #include <rte_ethdev.h>
-#include <rte_ring.h>
-#include <rte_mempool.h>
-#include <rte_mbuf.h>
+#include <rte_ether.h>
+#include <rte_interrupts.h>
 #include <rte_ip.h>
-#include <rte_tcp.h>
+#include <rte_launch.h>
+#include <rte_lcore.h>
+#include <rte_log.h>
 #include <rte_lpm.h>
+#include <rte_malloc.h>
+#include <rte_mbuf.h>
+#include <rte_memcpy.h>
+#include <rte_memory.h>
+#include <rte_mempool.h>
+#include <rte_memzone.h>
+#include <rte_pci.h>
+#include <rte_per_lcore.h>
+#include <rte_per_lcore.h>
+#include <rte_prefetch.h>
+#include <rte_random.h>
+#include <rte_ring.h>
 #include <rte_string_fns.h>
+#include <rte_tailq.h>
+#include <rte_tcp.h>
 
 #include "replay.h"
 
@@ -79,15 +79,13 @@ struct replay_params replay;
 
 static const char usage[] =
     "                                                                               \n"
-    "    hpcn_latency <EAL PARAMS> -- <REPLAY PARAMS>                                  \n"
+    "    replay <EAL PARAMS> -- <REPLAY PARAMS>                                     \n"
     "                                                                               \n"
     "Application manadatory parameters:                                             \n"
     "    --rx \"(PORT, QUEUE, LCORE), ...\" : List of NIC RX ports and queues       \n"
     "           handled by the I/O RX lcores                                        \n"
-    "    --tx \"(PORT, QUEUE, LCORE), ...\" : List of NIC TX ports and queues       \n"
-    "           handled by the I/O TX lcores                                        \n"
-    "    --w \"LCORE, ...\" : List of the worker lcores                             \n"
-
+    "    --tx \"(PORT, QUEUE, NVME, LCORE), ...\" : List of NIC TX ports, queues and\n"
+    "           NVME drives handled by the I/O TX lcores                            \n"
     "                                                                               \n"
     "Application optional parameters:                                               \n"
     "    --rsz \"A, B\" : Ring sizes                                                \n"
@@ -98,40 +96,9 @@ static const char usage[] =
     "    --bsz \"A, B\" :  Burst sizes                                              \n"
     "           A = I/O RX lcore read burst size from NIC RX (default value is %u)  \n"
     "           B = I/O TX lcore write burst size to NIC TX (default value is %u)   \n"
-
     "                                                                               \n"
-    "Packet-Sending parameters:                                                     \n"
-    "    --etho \"aa:bb:cc:dd:ee:ff\" : The ethernet origin MAC addr                \n"
-    "    --ethd \"aa:bb:cc:dd:ee:ff\" : The ethernet destination MAC addr           \n"
-    "    --ipo \"11.22.33.44\" : The ip origin addr                                 \n"
-    "    --ipd \"11.22.33.44\" : The ip destination addr                            \n"
-    "    --pktLen \"Packet LENGTH\" : Sets the size of each sent packet             \n"
-    "    --trainLen \"TRAIN LENGTH\" : Enables and sets the packet train length     \n"
-    "    --trainFriends \"TRAIN FRIENDS\" : if you are performing a simple latency    "
-    " measuremets tests with trainSleep activated, you can add friend packets to the  "
-    " train. This means: for each timestamped packet, a #friend dummy packets would   "
-    " be sent too                                                                   \n"
-    "    --trainSleep \"TRAIN SLEEP\": Sleep in NS between packets                  \n"
-    "    --hw : Checks HW timestamp packet [For debug purposes]                     \n"
-    "    --sts : Mode that sends lots of packets but only a few are timestamped     \n"
-    "    --waitTime \"WAIT TIMEOUT\" : Nanoseconds to stop the measurment when all  \n"
-    "                                    packets has been sent                      \n"
-    "    --chksum : Each packet recalculate the IP/ICMP checksum                    \n"
-    "    --autoInc : Each packet autoincrements the ICMP's sequence number          \n"
-    "    --bw : Only measures bandwidth, but with higher resolution                 \n"
-    "    --bwp: Only measures bandwidth(pasive) by just listening. No packet is sent\n"
-    "    --lo : The replaylication works in loopback mode. Used to measure RTT         \n"
-
-    "                                                                               \n"
-    "Calibration Parameters                                                         \n"
-    "    --calibrate \"outputFile\" : Generate a calibration file. May take minutes"
-    " [IN DEV]\n"
-    "    --calibration \"inputFile\" : Open a calibration file, to fix measurements"
-    " [UNIMPLEMENTED]\n"
-    "                                                                               \n"
-
-    "Misc Parameters                                                                \n"
-    "    --outputFile \"outputFile\" : A file to redirect output data               \n";
+    "Replay parameters:                                                             \n"
+    "    --ifile \"file name\" : An optimized-pcap file stored in the NVME-raid     \n";
 
 void replay_print_usage (void) {
 	printf (usage,
@@ -153,7 +120,7 @@ static int str_to_unsigned_array (
     const char *s, size_t sbuflen, char separator, unsigned num_vals, unsigned *vals) {
 	char str[sbuflen + 1];
 	char *splits[num_vals];
-	char *endptr      = NULL;
+	char *endptr = NULL;
 	int i, num_splits = 0;
 
 	/* copy s so we don't modify original string */
@@ -337,8 +304,12 @@ static int parse_arg_rsz (const char *arg) {
 		return -1;
 	}
 
-	if (str_to_unsigned_vals (
-	        arg, REPLAY_ARG_RSZ_CHARS, ',', 2, &replay.nic_rx_ring_size, &replay.nic_tx_ring_size) != 2)
+	if (str_to_unsigned_vals (arg,
+	                          REPLAY_ARG_RSZ_CHARS,
+	                          ',',
+	                          2,
+	                          &replay.nic_rx_ring_size,
+	                          &replay.nic_tx_ring_size) != 2)
 		return -2;
 
 	if ((replay.nic_rx_ring_size == 0) || (replay.nic_tx_ring_size == 0)) {
@@ -377,139 +348,10 @@ static int parse_arg_bsz (const char *arg) {
 	return 0;
 }
 
-#ifndef REPLAY_ARG_NUMERICAL_SIZE_CHARS
-#define REPLAY_ARG_NUMERICAL_SIZE_CHARS 15
-#endif
-
-extern uint8_t icmppkt[];
-extern int doChecksum;
-extern int autoIncNum;
-extern int selectiveTS;
-extern int bandWidthMeasure;
-extern int bandWidthMeasureActive;
-extern int hwTimeTest;
-extern uint64_t trainLen;
-extern uint64_t trainSleep;  // ns
-extern uint64_t trainFriends;
-extern uint64_t waitTime;  // ns
-extern unsigned sndpktlen;
-
-extern struct pktLatencyStat *latencyStats;
-
-#ifndef REPLAY_ARG_ETH_SIZE_CHARS
-#define REPLAY_ARG_ETH_SIZE_CHARS (2 * 6 + 1 * 5)
-#endif
-
-static int parse_arg_etho (const char *arg) {
-	uint8_t etho[6];
-
-	if (sscanf (arg,
-	            "%hhX:%hhX:%hhX:%hhX:%hhX:%hhX",
-	            etho + 0,
-	            etho + 1,
-	            etho + 2,
-	            etho + 3,
-	            etho + 4,
-	            etho + 5) != sizeof (etho)) {
-		return -1;
-	}
-
-	memcpy (icmppkt + 6, etho, sizeof (etho));
-
+static int parse_arg_ifile (const char *arg) {
+	puts ("TODO OPENING");
+	exit (-1);
 	return 0;
-}
-
-static int parse_arg_ethd (const char *arg) {
-	uint8_t ethd[6];
-
-	if (sscanf (arg,
-	            "%hhX:%hhX:%hhX:%hhX:%hhX:%hhX",
-	            ethd + 0,
-	            ethd + 1,
-	            ethd + 2,
-	            ethd + 3,
-	            ethd + 4,
-	            ethd + 5) != sizeof (ethd)) {
-		return -1;
-	}
-
-	memcpy (icmppkt, ethd, sizeof (ethd));
-
-	return 0;
-}
-
-static int parse_arg_ipo (const char *arg) {
-	uint8_t ip[4];
-
-	if (sscanf (arg, "%hhd.%hhd.%hhd.%hhd", ip + 0, ip + 1, ip + 2, ip + 3) != sizeof (ip)) {
-		return -1;
-	}
-
-	memcpy (icmppkt + 6 + 6 + 2 + 3 * 4, ip, sizeof (ip));
-
-	return 0;
-}
-
-static int parse_arg_ipd (const char *arg) {
-	uint8_t ip[4];
-
-	if (sscanf (arg, "%hhd.%hhd.%hhd.%hhd", ip + 0, ip + 1, ip + 2, ip + 3) != sizeof (ip)) {
-		return -1;
-	}
-
-	memcpy (icmppkt + 6 + 6 + 2 + 4 * 4, ip, sizeof (ip));
-
-	return 0;
-}
-
-static int parse_arg_pktLen (const char *arg) {
-	if (sscanf (arg, "%u", &sndpktlen) != 1) {
-		return -1;
-	}
-
-	return 0;
-}
-
-static int parse_arg_trainLen (const char *arg) {
-	if (sscanf (arg, "%lu", &trainLen) != 1) {
-		return -1;
-	}
-
-	if (latencyStats)
-		rte_free (latencyStats);
-
-	latencyStats = rte_calloc ("latency_stats", trainLen, sizeof (struct pktLatencyStat), 0);
-
-	return 0;
-}
-
-static int parse_arg_trainSleep (const char *arg) {
-	if (sscanf (arg, "%lu", &trainSleep) != 1) {
-		return -1;
-	}
-
-	return 0;
-}
-
-static int parse_arg_trainFriends (const char *arg) {
-	if (sscanf (arg, "%lu", &trainFriends) != 1) {
-		return -1;
-	}
-
-	return 0;
-}
-
-static int parse_arg_waitTime (const char *arg) {
-	if (sscanf (arg, "%lu", &waitTime) != 1) {
-		return -1;
-	}
-
-	return 0;
-}
-
-static int parse_arg_outputFile (const char *arg) {
-	FILE *f = freopen (arg, "w+", stdout);
-	return !f;
 }
 
 /* Parse the argument given in the command line of the replaylication */
@@ -523,34 +365,15 @@ int replay_parse_args (int argc, char **argv) {
 	                                 {"tx", 1, 0, 0},
 	                                 {"rsz", 1, 0, 0},
 	                                 {"bsz", 1, 0, 0},
-	                                 // Net config
-	                                 {"etho", 1, 0, 0},
-	                                 {"ethd", 1, 0, 0},
-	                                 {"ipo", 1, 0, 0},
-	                                 {"ipd", 1, 0, 0},
-	                                 {"pktLen", 1, 0, 0},
-	                                 // Trains, if not set, permanent connection would be done
-	                                 {"trainLen", 1, 0, 0},
-	                                 {"trainSleep", 1, 0, 0},
-	                                 {"trainFriends", 1, 0, 0},
-	                                 {"waitTime", 1, 0, 0},
-	                                 // Auto fix ICMP packets
-	                                 {"chksum", 0, 0, 0},
-	                                 {"autoInc", 0, 0, 0},
-	                                 // Measurment kind
-	                                 {"bw", 0, 0, 0},
-	                                 {"bwp", 0, 0, 0},
-	                                 {"sts", 0, 0, 0},
-	                                 // debug
-	                                 {"hw", 0, 0, 0},
-	                                 // Misc functions
-	                                 {"outputFile", 1, 0, 0},
+	                                 // File config
+	                                 {"ifile", 1, 0, 0},
 	                                 // endlist
 	                                 {NULL, 0, 0, 0}};
-	uint32_t arg_rx  = 0;
-	uint32_t arg_tx  = 0;
-	uint32_t arg_rsz = 0;
-	uint32_t arg_bsz = 0;
+	uint32_t arg_rx    = 0;
+	uint32_t arg_tx    = 0;
+	uint32_t arg_rsz   = 0;
+	uint32_t arg_bsz   = 0;
+	uint32_t arg_ifile = 0;
 
 	argvopt = argv;
 
@@ -560,7 +383,7 @@ int replay_parse_args (int argc, char **argv) {
 			case 0:
 				if (!strcmp (lgopts[option_index].name, "rx")) {
 					arg_rx = 1;
-					ret = parse_arg_rx (optarg);
+					ret    = parse_arg_rx (optarg);
 					if (ret) {
 						printf ("Incorrect value for --rx argument (%d)\n", ret);
 						return -1;
@@ -568,7 +391,7 @@ int replay_parse_args (int argc, char **argv) {
 				}
 				if (!strcmp (lgopts[option_index].name, "tx")) {
 					arg_tx = 1;
-					ret = parse_arg_tx (optarg);
+					ret    = parse_arg_tx (optarg);
 					if (ret) {
 						printf ("Incorrect value for --tx argument (%d)\n", ret);
 						return -1;
@@ -576,7 +399,7 @@ int replay_parse_args (int argc, char **argv) {
 				}
 				if (!strcmp (lgopts[option_index].name, "rsz")) {
 					arg_rsz = 1;
-					ret = parse_arg_rsz (optarg);
+					ret     = parse_arg_rsz (optarg);
 					if (ret) {
 						printf ("Incorrect value for --rsz argument (%d)\n", ret);
 						return -1;
@@ -584,121 +407,21 @@ int replay_parse_args (int argc, char **argv) {
 				}
 				if (!strcmp (lgopts[option_index].name, "bsz")) {
 					arg_bsz = 1;
-					ret = parse_arg_bsz (optarg);
+					ret     = parse_arg_bsz (optarg);
 					if (ret) {
 						printf ("Incorrect value for --bsz argument (%d)\n", ret);
 						return -1;
 					}
 				}
-				if (!strcmp (lgopts[option_index].name, "etho")) {
-					ret = parse_arg_etho (optarg);
+				if (!strcmp (lgopts[option_index].name, "ifile")) {
+					arg_ifile = 1;
+					ret       = parse_arg_ifile (optarg);
 					if (ret) {
-						printf ("Incorrect value for --etho argument (%s, error code: %d)\n",
+						printf ("Incorrect value for --ifile argument (%s, error code: %d)\n",
 						        optarg,
 						        ret);
 						return -1;
 					}
-				}
-				if (!strcmp (lgopts[option_index].name, "ethd")) {
-					ret = parse_arg_ethd (optarg);
-					if (ret) {
-						printf ("Incorrect value for --ethd argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "ipo")) {
-					ret = parse_arg_ipo (optarg);
-					if (ret) {
-						printf ("Incorrect value for --ipo argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "ipd")) {
-					ret = parse_arg_ipd (optarg);
-					if (ret) {
-						printf ("Incorrect value for --ipd argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "pktLen")) {
-					ret = parse_arg_pktLen (optarg);
-					if (ret) {
-						printf ("Incorrect value for --pktLen argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "trainLen")) {
-					ret = parse_arg_trainLen (optarg);
-					if (ret) {
-						printf ("Incorrect value for --trainLen argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "trainSleep")) {
-					ret = parse_arg_trainSleep (optarg);
-					if (ret) {
-						printf ("Incorrect value for --trainSleep argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "trainFriends")) {
-					ret = parse_arg_trainFriends (optarg);
-					if (ret) {
-						printf (
-						    "Incorrect value for --trainFriends argument (%s, error code: %d)\n",
-						    optarg,
-						    ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "waitTime")) {
-					ret = parse_arg_waitTime (optarg);
-					if (ret) {
-						printf ("Incorrect value for --waitTime argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "outputFile")) {
-					ret = parse_arg_outputFile (optarg);
-					if (ret) {
-						printf ("Incorrect value for --outputFile argument (%s, error code: %d)\n",
-						        optarg,
-						        ret);
-						return -1;
-					}
-				}
-				if (!strcmp (lgopts[option_index].name, "chksum")) {
-					doChecksum = 1;
-				}
-				if (!strcmp (lgopts[option_index].name, "autoInc")) {
-					autoIncNum = 1;
-				}
-				if (!strcmp (lgopts[option_index].name, "bw")) {
-					bandWidthMeasure       = 1;
-					bandWidthMeasureActive = 1;
-				}
-				if (!strcmp (lgopts[option_index].name, "bwp")) {
-					bandWidthMeasure = 1;
-				}
-				if (!strcmp (lgopts[option_index].name, "hw")) {
-					hwTimeTest = 1;
-				}
-				if (!strcmp (lgopts[option_index].name, "sts")) {
-					selectiveTS = 1;
 				}
 				break;
 
@@ -708,7 +431,7 @@ int replay_parse_args (int argc, char **argv) {
 	}
 
 	/* Check that all mandatory arguments are provided */
-	if ((arg_rx == 0) || (arg_tx == 0)) {
+	if ((arg_rx == 0) || (arg_tx == 0) || (arg_ifile == 0)) {
 		printf ("Not all mandatory arguments are present\n");
 		return -1;
 	}
@@ -726,12 +449,6 @@ int replay_parse_args (int argc, char **argv) {
 
 	if (optind >= 0)
 		argv[optind - 1] = prgname;
-
-	// Latency replay arguments
-	if (trainLen == 0) {  // activate bandwidth mode
-		printf ("No trainLength set, activating --bw mode\n");
-		bandWidthMeasure = 1;
-	}
 
 	ret    = optind - 1;
 	optind = 0; /* reset getopt lib */
@@ -839,7 +556,8 @@ uint32_t replay_get_lcores_io_rx (void) {
 	for (lcore = 0; lcore < REPLAY_MAX_LCORES; lcore++) {
 		struct replay_lcore_params_io *lp_io = &replay.lcore_params[lcore].io;
 
-		if ((replay.lcore_params[lcore].type != e_REPLAY_LCORE_IO) || (lp_io->rx.n_nic_queues == 0)) {
+		if ((replay.lcore_params[lcore].type != e_REPLAY_LCORE_IO) ||
+		    (lp_io->rx.n_nic_queues == 0)) {
 			continue;
 		}
 

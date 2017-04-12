@@ -31,46 +31,46 @@
  *   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <sys/types.h>
-#include <string.h>
-#include <sys/queue.h>
-#include <stdarg.h>
 #include <errno.h>
 #include <getopt.h>
+#include <inttypes.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/queue.h>
+#include <sys/types.h>
 
-#include <rte_common.h>
-#include <rte_byteorder.h>
-#include <rte_log.h>
-#include <rte_memory.h>
-#include <rte_memcpy.h>
-#include <rte_memzone.h>
-#include <rte_tailq.h>
-#include <rte_eal.h>
-#include <rte_per_lcore.h>
-#include <rte_launch.h>
 #include <rte_atomic.h>
-#include <rte_cycles.h>
-#include <rte_prefetch.h>
-#include <rte_lcore.h>
-#include <rte_per_lcore.h>
 #include <rte_branch_prediction.h>
-#include <rte_interrupts.h>
-#include <rte_pci.h>
-#include <rte_random.h>
+#include <rte_byteorder.h>
+#include <rte_common.h>
+#include <rte_cycles.h>
 #include <rte_debug.h>
-#include <rte_ether.h>
+#include <rte_eal.h>
 #include <rte_ethdev.h>
-#include <rte_ring.h>
-#include <rte_mempool.h>
-#include <rte_mbuf.h>
-#include <rte_string_fns.h>
+#include <rte_ether.h>
+#include <rte_interrupts.h>
 #include <rte_ip.h>
-#include <rte_tcp.h>
+#include <rte_launch.h>
+#include <rte_lcore.h>
+#include <rte_log.h>
 #include <rte_lpm.h>
+#include <rte_mbuf.h>
+#include <rte_memcpy.h>
+#include <rte_memory.h>
+#include <rte_mempool.h>
+#include <rte_memzone.h>
+#include <rte_pci.h>
+#include <rte_per_lcore.h>
+#include <rte_per_lcore.h>
+#include <rte_prefetch.h>
+#include <rte_random.h>
+#include <rte_ring.h>
+#include <rte_string_fns.h>
+#include <rte_tailq.h>
+#include <rte_tcp.h>
 
 #include "replay.h"
 
@@ -136,16 +136,16 @@ static void replay_init_mbuf_pools (void) {
 		snprintf (name, sizeof (name), "mbuf_pool_%u", socket);
 		printf ("Creating the mbuf pool for socket %u ...\n", socket);
 		replay.pools[socket] = rte_mempool_create (name,
-		                                        REPLAY_DEFAULT_MEMPOOL_BUFFERS,
-		                                        REPLAY_DEFAULT_MBUF_SIZE,
-		                                        REPLAY_DEFAULT_MEMPOOL_CACHE_SIZE,
-		                                        sizeof (struct rte_pktmbuf_pool_private),
-		                                        rte_pktmbuf_pool_init,
-		                                        NULL,
-		                                        rte_pktmbuf_init,
-		                                        NULL,
-		                                        socket,
-		                                        0);
+		                                           REPLAY_DEFAULT_MEMPOOL_BUFFERS,
+		                                           REPLAY_DEFAULT_MBUF_SIZE,
+		                                           REPLAY_DEFAULT_MEMPOOL_CACHE_SIZE,
+		                                           sizeof (struct rte_pktmbuf_pool_private),
+		                                           rte_pktmbuf_pool_init,
+		                                           NULL,
+		                                           rte_pktmbuf_init,
+		                                           NULL,
+		                                           socket,
+		                                           0);
 		if (replay.pools[socket] == NULL) {
 			rte_panic ("Cannot create mbuf pool on socket %u\n", socket);
 		}
@@ -156,7 +156,7 @@ static void replay_init_mbuf_pools (void) {
 			continue;
 		}
 
-		socket                       = rte_lcore_to_socket_id (lcore);
+		socket                          = rte_lcore_to_socket_id (lcore);
 		replay.lcore_params[lcore].pool = replay.pools[socket];
 	}
 }
@@ -249,9 +249,6 @@ static void check_all_ports_link_status (uint8_t port_num, uint32_t port_mask) {
 	}
 }
 
-extern uint8_t icmppkt[];
-extern uint8_t arppkt[];
-
 static void replay_init_nics (void) {
 	unsigned socket;
 	uint32_t lcore = 0;
@@ -329,6 +326,7 @@ static void replay_init_nics (void) {
 		}
 
 		// get current mac addr
+		/*
 		rte_eth_macaddr_get (port, (struct ether_addr *)(icmppkt + 6));
 		rte_eth_macaddr_get (port, (struct ether_addr *)(arppkt + 6));
 		printf ("Default ETHOrig set to: %hhX:%hhX:%hhX:%hhX:%hhX:%hhX",
@@ -338,11 +336,7 @@ static void replay_init_nics (void) {
 		        icmppkt[9],
 		        icmppkt[10],
 		        icmppkt[11]);
-
-		// set IP Checksum
-		struct ipv4_hdr *hdr = (struct ipv4_hdr *)(icmppkt + 6 + 6 + 2);
-		hdr->hdr_checksum    = 0;
-		hdr->hdr_checksum    = rte_ipv4_cksum (hdr);
+		        */
 	}
 
 	check_all_ports_link_status (REPLAY_MAX_NIC_PORTS, (~0x0));

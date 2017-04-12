@@ -269,6 +269,7 @@ struct replay_params {
 	/* NIC */
 	uint8_t nic_rx_queue_mask[REPLAY_MAX_NIC_PORTS][REPLAY_MAX_RX_QUEUES_PER_NIC_PORT];
 	uint8_t nic_tx_queue_mask[REPLAY_MAX_NIC_PORTS][REPLAY_MAX_TX_QUEUES_PER_NIC_PORT];
+	uint8_t nic_tx_queue_nvme[REPLAY_MAX_NIC_PORTS][REPLAY_MAX_TX_QUEUES_PER_NIC_PORT];
 
 	/* mbuf pools */
 	struct rte_mempool *pools[REPLAY_MAX_SOCKETS];

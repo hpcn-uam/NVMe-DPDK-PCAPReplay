@@ -167,11 +167,11 @@ static int parse_arg_rx (const char *arg) {
 	n_tuples = 0;
 	while ((p = strchr (p0, '(')) != NULL) {
 		struct replay_lcore_params *lp;
-		uint32_t port, queue, lcore, nvme, i;
+		uint32_t port, queue, lcore, i;
 
 		p0 = strchr (p++, ')');
 		if ((p0 == NULL) ||
-		    (str_to_unsigned_vals (p, p0 - p, ',', 4, &port, &queue, &nvme, &lcore) != 3)) {
+		    (str_to_unsigned_vals (p, p0 - p, ',', 3, &port, &queue, &lcore) != 3)) {
 			return -2;
 		}
 
@@ -183,7 +183,6 @@ static int parse_arg_rx (const char *arg) {
 			return -4;
 		}
 		replay.nic_rx_queue_mask[port][queue] = 1;
-		replay.nic_tx_queue_nvme[port][queue] = nvme;  // TODO check if available nvme
 
 		/* Check and assign (port, queue) to I/O lcore */
 		if (rte_lcore_is_enabled (lcore) == 0) {
@@ -243,11 +242,11 @@ static int parse_arg_tx (const char *arg) {
 	n_tuples = 0;
 	while ((p = strchr (p0, '(')) != NULL) {
 		struct replay_lcore_params *lp;
-		uint32_t port, queue, lcore, i;
+		uint32_t port, queue, lcore, nvme, i;
 
 		p0 = strchr (p++, ')');
 		if ((p0 == NULL) ||
-		    (str_to_unsigned_vals (p, p0 - p, ',', 3, &port, &queue, &lcore) != 3)) {
+		    (str_to_unsigned_vals (p, p0 - p, ',', 4, &port, &queue, &nvme, &lcore) != 4)) {
 			return -2;
 		}
 
@@ -259,6 +258,7 @@ static int parse_arg_tx (const char *arg) {
 			return -4;
 		}
 		replay.nic_tx_queue_mask[port][queue] = 1;
+		replay.nic_tx_queue_nvme[port][queue] = nvme;  // TODO check if available nvme
 
 		/* Check and assign (port, queue) to I/O lcore */
 		if (rte_lcore_is_enabled (lcore) == 0) {
@@ -366,7 +366,7 @@ int replay_parse_args (int argc, char **argv, struct spdk_env_opts *conf) {
 	char *prgname                 = argv[0];
 	static struct option lgopts[] = {// EAL parameters
 	                                 {"c", 1, 0, 0},
-									 // Classic parameters
+	                                 // Classic parameters
 	                                 {"rx", 1, 0, 0},
 	                                 {"tx", 1, 0, 0},
 	                                 {"rsz", 1, 0, 0},
@@ -388,7 +388,7 @@ int replay_parse_args (int argc, char **argv, struct spdk_env_opts *conf) {
 			/* long options */
 			case 0:
 				if (!strcmp (lgopts[option_index].name, "c")) {
-					conf->core_mask=strdup(optarg);
+					conf->core_mask = strdup (optarg);
 					if (!conf->core_mask) {
 						printf ("Incorrect value for --c argument (%d)\n", ret);
 						return -1;

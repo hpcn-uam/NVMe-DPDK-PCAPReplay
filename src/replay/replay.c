@@ -74,15 +74,12 @@
 
 #include "replay.h"
 
-#include "spdk/nvme.h"
-#include "spdk/env.h"
-
 #include <common.h>
 
-void app_config (int argc, char **argv) {
+void app_config (int argc, char **argv, struct spdk_env_opts *conf) {	
 	int ret;
 	/* Parse replaylication arguments (after the EAL ones) */
-	ret = replay_parse_args (argc, argv);
+	ret = replay_parse_args (argc, argv, conf);
 	if (ret < 0) {
 		replay_print_usage ();
 		exit (-1);

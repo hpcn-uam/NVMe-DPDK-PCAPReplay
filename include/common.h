@@ -7,9 +7,12 @@
 #include <simpleio.h>
 #include <spcap.h>
 
+// Spdk
+#include "spdk/env.h"
+
 static const char pcapExt[] = ".nscap";
 
-void app_config (int argc, char **argv);
+void app_config (int argc, char **argv, struct spdk_env_opts *conf);
 void app_init (nvmeRaid *raid);
 void app_run (nvmeRaid *raid);
 

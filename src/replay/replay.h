@@ -37,6 +37,9 @@
 #include <stdio.h>
 #include "hptl.h"
 
+#include "spdk/nvme.h"
+#include "spdk/env.h"
+
 /* Logical cores */
 #ifndef REPLAY_MAX_SOCKETS
 #define REPLAY_MAX_SOCKETS 2
@@ -294,7 +297,7 @@ struct pktLatencyStat {
 
 extern struct replay_params replay;
 
-int replay_parse_args (int argc, char **argv);
+int replay_parse_args (int argc, char **argv, struct spdk_env_opts *conf);
 void replay_print_usage (void);
 void replay_init (void);
 int replay_lcore_main_loop (void *arg);

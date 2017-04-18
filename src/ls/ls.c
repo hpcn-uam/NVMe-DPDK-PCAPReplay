@@ -34,7 +34,9 @@ static void app_paramCheck (void) {
 	}
 }
 
-void app_config (int argc, char **argv) {
+void app_config (int argc, char **argv, struct spdk_env_opts *conf) {
+	UNUSED(conf);
+	
 	int c;
 	while (1) {
 		static struct option long_options[] = {{"help", no_argument, 0, 'h'}, {0, 0, 0, 0}};

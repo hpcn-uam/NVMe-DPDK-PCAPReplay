@@ -79,7 +79,10 @@ struct replay_params replay;
 
 static const char usage[] =
     "                                                                               \n"
-    "    replay <EAL PARAMS> -- <REPLAY PARAMS>                                     \n"
+    "    replay <REPLAY and EAL PARAMS>                                             \n"
+    "                                                                               \n"
+    "DPDK's EAL patameters:                                                         \n"
+    "    --c \"core mask\" : Which cores would be accesible for DPDK.               \n"
     "                                                                               \n"
     "Application manadatory parameters:                                             \n"
     "    --rx \"(PORT, QUEUE, LCORE), ...\" : List of NIC RX ports and queues       \n"
@@ -356,12 +359,14 @@ static int parse_arg_ifile (const char *arg) {
 }
 
 /* Parse the argument given in the command line of the replaylication */
-int replay_parse_args (int argc, char **argv) {
+int replay_parse_args (int argc, char **argv, struct spdk_env_opts *conf) {
 	int opt, ret;
 	char **argvopt;
 	int option_index;
 	char *prgname                 = argv[0];
-	static struct option lgopts[] = {// Classic parameters
+	static struct option lgopts[] = {// EAL parameters
+	                                 {"c", 1, 0, 0},
+									 // Classic parameters
 	                                 {"rx", 1, 0, 0},
 	                                 {"tx", 1, 0, 0},
 	                                 {"rsz", 1, 0, 0},
@@ -382,6 +387,13 @@ int replay_parse_args (int argc, char **argv) {
 		switch (opt) {
 			/* long options */
 			case 0:
+				if (!strcmp (lgopts[option_index].name, "c")) {
+					conf->core_mask=strdup(optarg);
+					if (!conf->core_mask) {
+						printf ("Incorrect value for --c argument (%d)\n", ret);
+						return -1;
+					}
+				}
 				if (!strcmp (lgopts[option_index].name, "rx")) {
 					arg_rx = 1;
 					ret    = parse_arg_rx (optarg);

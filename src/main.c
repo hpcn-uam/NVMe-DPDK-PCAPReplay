@@ -131,26 +131,13 @@ int main (int argc, char **argv) {
 	struct spdk_env_opts opts;
 	int rc;
 
-	// First of all, try to configure the app
-	app_config (argc, argv);
-
-	/* Init EAL */
-	/*ret = rte_eal_init (argc, argv);
-	if (ret < 0)
-	    return -1;
-	argc -= ret;
-	argv += ret;*/
-
-	// strcpy (ealargs[0], argv[0]);
-	/*rc = rte_eal_init (sizeof (ealargs) / sizeof (ealargs[0]), ealargs);
-	if (rc < 0) {
-	    fprintf (stderr, "could not initialize dpdk\n");
-	    return 1;
-	}*/
 	spdk_env_opts_init (&opts);
 	opts.name      = "replay";
 	opts.core_mask = "0xf";
 	opts.shm_id    = -1;
+
+	// First of all, try to configure the app
+	app_config (argc, argv, &opts);
 	spdk_env_init (&opts);
 
 	printf ("Attaching to NVMe Controllers\n");
